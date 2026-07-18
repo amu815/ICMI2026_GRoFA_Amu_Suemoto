@@ -18,11 +18,11 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-BASE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(BASE / "neurips" / "src3"))
+BASE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from models import NeurIPSModelV28
-from train_neurips_v60_xback import BACKBONE_SPECS, load_backbone
+from models import GRoFAModelV28
+from train_grofa_xback import BACKBONE_SPECS, load_backbone
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -89,7 +89,7 @@ def main():
     print(f"[xback-eval] backbone={backbone} num_race={num_race} num_age={num_age}")
 
     base_model = load_backbone(backbone, lora_ckpt)
-    model = NeurIPSModelV28(
+    model = GRoFAModelV28(
         base_model, num_race=num_race, num_gender=2, num_age=num_age,
         arf_floor=arf_floor, gate_ceiling=gate_ceiling,
     ).to(DEVICE)

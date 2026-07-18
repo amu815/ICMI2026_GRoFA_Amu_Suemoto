@@ -3,15 +3,15 @@
 Creates interpolated embedding NPZs at various alphas:
   z_wft = alpha * z_student + (1 - alpha) * z_baseline
 
-Then evaluates each with evaluate_neurips_v2.py protocol.
+Then evaluates each with evaluate_protocol.py protocol.
 """
 import numpy as np
 from pathlib import Path
 import subprocess, sys
 
 BASE = Path("results")
-STUDENT_DIR = BASE / "neurips_v60_ipmix_utkface_s0"
-BASELINE_DIR = BASE / "neurips_v32_utkface_embeddings"
+STUDENT_DIR = BASE / "grofa_ipmix_utkface_s0"
+BASELINE_DIR = BASE / "baseline_utkface_embeddings"
 
 # Load embeddings
 print("Loading embeddings...", flush=True)
@@ -23,7 +23,7 @@ bl_test = np.load(BASELINE_DIR / "base_test.npz", allow_pickle=True)
 alphas = [0.50, 0.60, 0.70, 0.80, 0.90]
 
 for alpha in alphas:
-    out_dir = BASE / f"neurips_v60_wiseft{alpha:.2f}_utkface"
+    out_dir = BASE / f"grofa_wiseft{alpha:.2f}_utkface"
     out_dir.mkdir(exist_ok=True)
 
     # Interpolate
@@ -43,7 +43,7 @@ for alpha in alphas:
     # Evaluate
     eval_dir = out_dir / "eval_final"
     cmd = [
-        sys.executable, "src/evaluate_neurips_v2.py",
+        sys.executable, "src/evaluate_protocol.py",
         "--base_train_npz", str(BASELINE_DIR / "base_train.npz"),
         "--base_test_npz", str(BASELINE_DIR / "base_test.npz"),
         "--student_train_npz", str(out_dir / "train_student.npz"),

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/build_dataset_neurips_fairface.py
+src3/build_dataset_fairface.py
 Corruption-dataset builder — FairFace
 - CSV-based label reading (train_labels.csv / val_labels.csv)
 - 7 races: White, Black, East Asian, Indian, Latino_Hispanic, Middle Eastern, Southeast Asian
@@ -214,7 +214,7 @@ def main():
                         **attrs
                     })
 
-        out_jsonl = args.out_dir / "jsonl" / f"neurips_{split_name}.jsonl"
+        out_jsonl = args.out_dir / "jsonl" / f"{split_name}_views.jsonl"
         with open(out_jsonl, "w") as f:
             for r in rows:
                 f.write(json.dumps(r) + "\n")

@@ -2,7 +2,7 @@
 """Extract frozen backbone CLS embeddings (no adapter) for CLIP/DINOv2/BLIP.
 
 Outputs base_train.npz / base_test.npz matching the schema used by
-evaluate_neurips_v2.py and the debiaSAE pipeline.
+evaluate_protocol.py and the debiaSAE pipeline.
 """
 import argparse
 import json

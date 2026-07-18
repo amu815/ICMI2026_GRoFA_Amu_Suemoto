@@ -2,7 +2,7 @@
 """
 LoRA fine-tuning trainer (multi-task + HSIC) used for the augmentation-based
 LoRA backbones. Also provides the ArcFace / FocalLoss / GRL modules imported
-by the GRoFA trainers (train_neurips_v60.py, train_neurips_v60_xback.py).
+by the GRoFA trainers (train_grofa.py, train_grofa_xback.py).
 
 Architecture: Frozen BLIP + LoRA (r=16, 28 modules) + 3 classification heads.
 
@@ -26,7 +26,7 @@ from peft import LoraConfig, get_peft_model
 
 from lightly.loss import NTXentLoss
 
-# Import HSIC from neurips losses
+# Import HSIC from the shared losses module
 sys.path.insert(0, str(Path(__file__).parent))
 from losses import HSICLoss
 

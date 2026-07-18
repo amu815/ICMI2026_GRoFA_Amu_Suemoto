@@ -67,18 +67,8 @@ def count_wins(dart_accs):
     return wins, bm_wins, total, pt
 
 
-# v53 reference
-v53_csv = BASE / "neurips_v53_utkface_s0/eval_v32base/summary_by_condition.csv"
-df53 = pd.read_csv(v53_csv)
-v53_accs = {
-    (r["Task"], r["Noise_Type"], int(r["Noise_Level"])): r["Acc_mean"]
-    for _, r in df53[df53["Model"] == "Ours"].iterrows()
-}
-w53, bm53, _, pt53 = count_wins(v53_accs)
-print(f"v53 raw: {w53}/66 1st, {bm53}/66 BM>  R={pt53['race'][0]} G={pt53['gender'][0]} A={pt53['age'][0]}", flush=True)
-
 # v60 raw
-v60_csv = BASE / "neurips_v60_ipmix_utkface_s0/eval_final/summary_by_condition.csv"
+v60_csv = BASE / "grofa_ipmix_utkface_s0/eval_final/summary_by_condition.csv"
 df60 = pd.read_csv(v60_csv)
 v60_accs = {
     (r["Task"], r["Noise_Type"], int(r["Noise_Level"])): r["Acc_mean"]
@@ -92,10 +82,10 @@ print(f"\n{'='*60}", flush=True)
 print("  WiSE-FT Embedding Interpolation (alpha * student + (1-a) * base)", flush=True)
 print(f"{'='*60}", flush=True)
 
-dart_train = np.load(BASE / "neurips_v60_ipmix_utkface_s0/train_student.npz", allow_pickle=True)
-dart_test = np.load(BASE / "neurips_v60_ipmix_utkface_s0/test_student.npz", allow_pickle=True)
-bl_train = np.load(BASE / "neurips_v32_utkface_embeddings/base_train.npz", allow_pickle=True)
-bl_test = np.load(BASE / "neurips_v32_utkface_embeddings/base_test.npz", allow_pickle=True)
+dart_train = np.load(BASE / "grofa_ipmix_utkface_s0/train_student.npz", allow_pickle=True)
+dart_test = np.load(BASE / "grofa_ipmix_utkface_s0/test_student.npz", allow_pickle=True)
+bl_train = np.load(BASE / "baseline_utkface_embeddings/base_train.npz", allow_pickle=True)
+bl_test = np.load(BASE / "baseline_utkface_embeddings/base_test.npz", allow_pickle=True)
 
 tasks = ["race", "gender", "age"]
 train_labels = {t: dart_train[t] for t in tasks}
@@ -155,4 +145,4 @@ for alpha in alphas:
 
 print(f"\n  BEST: alpha={best_alpha:.2f} -> {best_wins}/66 1st, {best_bm}/66 BM>  "
       f"R={best_pt['race'][0]} G={best_pt['gender'][0]} A={best_pt['age'][0]}", flush=True)
-print(f"\n  v53 raw={w53}/66 | v60 raw={w60}/66 | v60 WFT({best_alpha:.2f})={best_wins}/66", flush=True)
+print(f"\n  raw={w60}/66 | WFT({best_alpha:.2f})={best_wins}/66", flush=True)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/models.py (NeurIPS 2026 Edition)
+models.py — GRoFA model definitions
 
 SSD-Net: Spectral-Spatial Dual-Gated Network
 Two loss weighting modes:
@@ -2062,13 +2062,13 @@ class SimplifiedAdapter(nn.Module):
 
 
 # ============================================================
-# NeurIPS Model v13: Frozen BLIP + SimplifiedAdapter + Classification Heads
+# Model v13: Frozen BLIP + SimplifiedAdapter + Classification Heads
 # ============================================================
-class NeurIPSModelV13(nn.Module):
+class GRoFAModelV13(nn.Module):
     """
     v13 Model: Frozen BLIP backbone + SimplifiedAdapter + Classification Heads.
 
-    Key differences from v12 (NeurIPSModel):
+    Key differences from v12 (GRoFAModel):
       - No SSD-Net (no FFT, no gate, no router MLP)
       - SimplifiedAdapter: pure MLP with residual (~590K params)
       - Classification heads: directly optimize linear probe accuracy
@@ -2238,9 +2238,9 @@ class AugmentedLagrangianFairness(nn.Module):
 
 
 # ============================================================
-# NeurIPS Model v17: Frozen BLIP + Noise-Gated Adapter + Classification
+# Model v17: Frozen BLIP + Noise-Gated Adapter + Classification
 # ============================================================
-class NeurIPSModelV17(nn.Module):
+class GRoFAModelV17(nn.Module):
     """
     v17 ParetoFair Model: Frozen BLIP + Noise-Gated Adapter + Classification.
 
@@ -2365,19 +2365,19 @@ class TALRouter(nn.Module):
 
 
 # ============================================================
-# NeurIPS Model v28: Frozen BLIP + Noise-Modulated Adapter + Classification
+# Model v28 (GRoFA): Frozen BLIP + Noise-Modulated Adapter + Classification
 # ============================================================
-class NeurIPSModelV28(nn.Module):
+class GRoFAModelV28(nn.Module):
     """
     v28 Model: Frozen BLIP + Noise-Modulated SimplifiedAdapter + Classification Heads.
 
-    Differences from NeurIPSModelV13:
+    Differences from GRoFAModelV13:
       - NoiseGateMLP gates the adapter residual:
         z_out = z_base + gate * adapter(z_base)
         gate = noise_score (invert_gate=True) or 1-noise_score (default)
       - invert_gate=True: adapter active on noisy, bypassed on clean (v57+)
       - invert_gate=False: adapter active on clean, bypassed on noisy (v28-v56)
-      - Returns 6 values (same signature as NeurIPSModelV17)
+      - Returns 6 values (same signature as GRoFAModelV17)
 
     Args:
         base_model: BLIP vision model (frozen)
@@ -2439,7 +2439,7 @@ class NeurIPSModelV28(nn.Module):
         return z_out, z_base, logits_race, logits_gender, logits_age, noise_score
 
 
-class NeurIPSModelV59(nn.Module):
+class GRoFAModelV59(nn.Module):
     """
     v59: Per-Task Noise Gates.
 
@@ -2784,7 +2784,7 @@ class NAARRouter(nn.Module):
 # ============================================================
 # Full Model (v4-v12): Frozen BLIP + SSD-Net
 # ============================================================
-class NeurIPSModel(nn.Module):
+class GRoFAModel(nn.Module):
     """
     Full model: Frozen BLIP backbone + trainable SSD-Net.
 

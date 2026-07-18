@@ -32,8 +32,8 @@ official sources and accept their licenses, then build the fixed corruption
 datasets (7 corruption types x 3 severities, pre-generated once):
 
 ```bash
-python3 src/build_dataset_neurips_fairface.py   # FairFace: 4,000 train / 1,000 test pool
-python3 src/build_dataset_neurips.py            # UTKFace
+python3 src/build_dataset_fairface.py   # FairFace: 4,000 train / 1,000 test pool
+python3 src/build_dataset_utkface.py            # UTKFace
 ```
 
 ## Reproduction pipeline
@@ -45,27 +45,27 @@ python3 src/build_dataset_neurips.py            # UTKFace
 
 2. **Train GRoFA (5 seeds).**
    ```bash
-   python3 src/train_neurips_v60.py --ablation_mode rtdar_g \
-     --train_jsonl data/processed/neurips_fairface/jsonl/neurips_train.jsonl \
-     --val_jsonl   data/processed/neurips_fairface/jsonl/neurips_test.jsonl \
-     --out_dir results/neurips_v60_fairface_s0 \
+   python3 src/train_grofa.py --ablation_mode rtdar_g \
+     --train_jsonl data/processed/fairface_corrupted/jsonl/train_views.jsonl \
+     --val_jsonl   data/processed/fairface_corrupted/jsonl/test_views.jsonl \
+     --out_dir results/grofa_fairface_s0 \
      --lora_ckpt models/baselines_v2_fairface/IPMix/ema --lora_scale 1.0 \
      --epochs 50 --patience 20 --seed 42 \
      --lambda_hsic_race 0.5 --lambda_hsic_gender 0.3 --lambda_anchor 0.5 \
      --arc_fixed_weight 0.15
    ```
-   `src/train_neurips_v60_xback.py` is the same trainer instantiated on
+   `src/train_grofa_xback.py` is the same trainer instantiated on
    CLIP ViT-B/16 and DINOv2-base.
 
 3. **5-seed ensemble + WiSE-FT + 66-condition evaluation.**
    ```bash
    bash scripts/eval_5seed.sh
    ```
-   This generates per-seed embeddings (`src/gen_v60_embeddings.py`), averages
+   This generates per-seed embeddings (`src/gen_grofa_embeddings.py`), averages
    them, applies WiSE-FT interpolation against the frozen baseline
-   (`src/gen_wiseft_embeddings*.py`, alpha sweep in `src/wiseft_sweep_utk_v60.py`),
+   (`src/gen_wiseft_embeddings*.py`, alpha sweep in `src/wiseft_sweep_utk.py`),
    and evaluates a clean-trained logistic probe under 22 conditions x 3 tasks
-   (`src/evaluate_neurips_v2.py`).
+   (`src/evaluate_protocol.py`).
 
 4. **Baselines.**
    `src/run_debiasae.py` is our adaptation of SAE-based debiasing (debiaSAE) to

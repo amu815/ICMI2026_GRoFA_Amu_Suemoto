@@ -5,9 +5,9 @@ import sys
 from pathlib import Path
 
 alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.60
-student_dir = sys.argv[2] if len(sys.argv) > 2 else "results/neurips_v55b_fairface_s0"
-base_dir = "results/neurips_v39_fairface_embeddings"
-out_dir = f"results/neurips_v55b_wiseft{alpha:.2f}_fairface"
+student_dir = sys.argv[2] if len(sys.argv) > 2 else "results/grofa_fairface_s0"
+base_dir = "results/baseline_fairface_embeddings"
+out_dir = f"results/grofa_wiseft{alpha:.2f}_fairface"
 
 Path(out_dir).mkdir(parents=True, exist_ok=True)
 

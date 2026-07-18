@@ -3,9 +3,9 @@
 set -e
 
 PYTHON=python3
-EVAL_SCRIPT=./src/evaluate_neurips_v2.py
-BASE_TRAIN=./results/neurips_v39_fairface_embeddings/base_train.npz
-BASE_TEST=./results/neurips_v39_fairface_embeddings/base_test.npz
+EVAL_SCRIPT=./src/evaluate_protocol.py
+BASE_TRAIN=./results/baseline_fairface_embeddings/base_train.npz
+BASE_TEST=./results/baseline_fairface_embeddings/base_test.npz
 EMB_DIR=./results/comparison_embeddings  # npz embeddings of the post-hoc baselines
 OUT_BASE=./results/comparison_eval_fairface
 

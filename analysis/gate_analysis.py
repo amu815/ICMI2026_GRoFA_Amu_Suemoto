@@ -25,10 +25,10 @@ from sklearn.metrics import roc_auc_score
 
 BASE = Path("results")
 SETS = {
-    "ff_train": BASE / "neurips_v60_ens5_wiseft0.95_fairface/train_student.npz",
-    "ff_test": BASE / "neurips_v60_ens5_wiseft0.95_fairface/test_student.npz",
-    "utk_train": BASE / "neurips_v60_ens5_wiseft0.60_utkface/train_student.npz",
-    "utk_test": BASE / "neurips_v60_ens5_wiseft0.60_utkface/test_student.npz",
+    "ff_train": BASE / "grofa_ens5_wiseft0.95_fairface/train_student.npz",
+    "ff_test": BASE / "grofa_ens5_wiseft0.95_fairface/test_student.npz",
+    "utk_train": BASE / "grofa_ens5_wiseft0.60_utkface/train_student.npz",
+    "utk_test": BASE / "grofa_ens5_wiseft0.60_utkface/test_student.npz",
 }
 NOISE_TYPES = ["gaussian", "shot", "impulse", "defocus", "glass", "jpeg", "cutout"]
 

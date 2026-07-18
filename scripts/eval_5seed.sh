@@ -9,11 +9,11 @@ echo "$(date): Starting 5-seed evaluation pipeline"
 ###############################################
 # FairFace
 ###############################################
-FF_SEEDS=(results/neurips_v60_fairface_s0 results/neurips_v60_fairface_s1 results/neurips_v60_fairface_s2 results/neurips_v60_fairface_s4 results/neurips_v60_fairface_s5)
+FF_SEEDS=(results/grofa_fairface_s0 results/grofa_fairface_s1 results/grofa_fairface_s2 results/grofa_fairface_s4 results/grofa_fairface_s5)
 FF_LORA=models/baselines_v2_fairface/IPMix/ema
-FF_TRAIN=data/processed/neurips_fairface/jsonl/neurips_train.jsonl
-FF_TEST=data/processed/neurips_fairface/jsonl/neurips_test.jsonl
-FF_BASE=results/neurips_v39_fairface_embeddings
+FF_TRAIN=data/processed/fairface_corrupted/jsonl/train_views.jsonl
+FF_TEST=data/processed/fairface_corrupted/jsonl/test_views.jsonl
+FF_BASE=results/baseline_fairface_embeddings
 
 echo "=== FairFace: Generate embeddings ==="
 for SDIR in "${FF_SEEDS[@]}"; do
@@ -22,14 +22,14 @@ for SDIR in "${FF_SEEDS[@]}"; do
         OUT=$SDIR/${SPLIT}_student.npz
         if [ -f "$OUT" ]; then echo "  [SKIP] $OUT"; continue; fi
         echo "  Generating $OUT"
-        CUDA_VISIBLE_DEVICES=0 $PY src/gen_v60_embeddings.py \
+        CUDA_VISIBLE_DEVICES=0 $PY src/gen_grofa_embeddings.py \
             --jsonl $JSONL --out_npz $OUT \
             --model_path $SDIR/model_best.pt --lora_ckpt $FF_LORA
     done
 done
 
 echo "=== FairFace: Create 5-seed ensemble ==="
-ENS_FF=results/neurips_v60_ensemble_5seed_fairface
+ENS_FF=results/grofa_ensemble_5seed_fairface
 $PY -c "
 import numpy as np; from pathlib import Path
 seeds = '${FF_SEEDS[0]} ${FF_SEEDS[1]} ${FF_SEEDS[2]} ${FF_SEEDS[3]} ${FF_SEEDS[4]}'.split()
@@ -46,7 +46,7 @@ for split in ['train','test']:
 
 echo "=== FairFace: WiSE-FT on ensemble ==="
 for ALPHA in 0.90 0.95; do
-    WFT_DIR=results/neurips_v60_ens5_wiseft${ALPHA}_fairface
+    WFT_DIR=results/grofa_ens5_wiseft${ALPHA}_fairface
     $PY -c "
 import numpy as np; from pathlib import Path
 alpha=$ALPHA; sd='$ENS_FF'; bd='$FF_BASE'; od='$WFT_DIR'
@@ -70,7 +70,7 @@ for SDIR in "${FF_SEEDS[@]}"; do
     EVAL_DIR=$SDIR/eval_final
     if [ -f "$EVAL_DIR/summary_by_condition.csv" ]; then echo "  [SKIP] $SDIR"; continue; fi
     echo "  Eval $SDIR"
-    $PY src/evaluate_neurips_v2.py \
+    $PY src/evaluate_protocol.py \
         --base_train_npz $FF_BASE_TRAIN --base_test_npz $FF_BASE_TEST \
         --student_train_npz $SDIR/train_student.npz --student_test_npz $SDIR/test_student.npz \
         --out_dir $EVAL_DIR
@@ -78,16 +78,16 @@ done
 
 # Ensemble RAW
 echo "  Eval Ensemble RAW"
-$PY src/evaluate_neurips_v2.py \
+$PY src/evaluate_protocol.py \
     --base_train_npz $FF_BASE_TRAIN --base_test_npz $FF_BASE_TEST \
     --student_train_npz $ENS_FF/train_student.npz --student_test_npz $ENS_FF/test_student.npz \
     --out_dir $ENS_FF/eval_final
 
 # Ensemble + WiSE-FT
 for ALPHA in 0.90 0.95; do
-    WFT_DIR=results/neurips_v60_ens5_wiseft${ALPHA}_fairface
+    WFT_DIR=results/grofa_ens5_wiseft${ALPHA}_fairface
     echo "  Eval Ensemble WFT alpha=$ALPHA"
-    $PY src/evaluate_neurips_v2.py \
+    $PY src/evaluate_protocol.py \
         --base_train_npz $FF_BASE_TRAIN --base_test_npz $FF_BASE_TEST \
         --student_train_npz $WFT_DIR/train_student.npz --student_test_npz $WFT_DIR/test_student.npz \
         --out_dir $WFT_DIR/eval_final
@@ -96,11 +96,11 @@ done
 ###############################################
 # UTKFace
 ###############################################
-UT_SEEDS=(results/neurips_v60_ipmix_utkface_s0 results/neurips_v60_ipmix_utkface_s1 results/neurips_v60_ipmix_utkface_s2 results/neurips_v60_ipmix_utkface_s3 results/neurips_v60_ipmix_utkface_s4)
+UT_SEEDS=(results/grofa_ipmix_utkface_s0 results/grofa_ipmix_utkface_s1 results/grofa_ipmix_utkface_s2 results/grofa_ipmix_utkface_s3 results/grofa_ipmix_utkface_s4)
 UT_LORA=models/baselines_v2_utk/IPMix/ema
-UT_TRAIN=data/processed/neurips_utk/jsonl/neurips_train.jsonl
-UT_TEST=data/processed/neurips_utk/jsonl/neurips_test.jsonl
-UT_BASE=results/neurips_v32_utkface_embeddings
+UT_TRAIN=data/processed/utkface_corrupted/jsonl/train_views.jsonl
+UT_TEST=data/processed/utkface_corrupted/jsonl/test_views.jsonl
+UT_BASE=results/baseline_utkface_embeddings
 
 echo "=== UTKFace: Generate embeddings ==="
 for SDIR in "${UT_SEEDS[@]}"; do
@@ -109,14 +109,14 @@ for SDIR in "${UT_SEEDS[@]}"; do
         OUT=$SDIR/${SPLIT}_student.npz
         if [ -f "$OUT" ]; then echo "  [SKIP] $OUT"; continue; fi
         echo "  Generating $OUT"
-        CUDA_VISIBLE_DEVICES=0 $PY src/gen_v60_embeddings.py \
+        CUDA_VISIBLE_DEVICES=0 $PY src/gen_grofa_embeddings.py \
             --jsonl $JSONL --out_npz $OUT \
             --model_path $SDIR/model_best.pt --lora_ckpt $UT_LORA
     done
 done
 
 echo "=== UTKFace: Create 5-seed ensemble ==="
-ENS_UT=results/neurips_v60_ensemble_5seed_utkface
+ENS_UT=results/grofa_ensemble_5seed_utkface
 $PY -c "
 import numpy as np; from pathlib import Path
 seeds = '${UT_SEEDS[0]} ${UT_SEEDS[1]} ${UT_SEEDS[2]} ${UT_SEEDS[3]} ${UT_SEEDS[4]}'.split()
@@ -133,7 +133,7 @@ for split in ['train','test']:
 
 echo "=== UTKFace: WiSE-FT on ensemble ==="
 for ALPHA in 0.60 0.90 0.95; do
-    WFT_DIR=results/neurips_v60_ens5_wiseft${ALPHA}_utkface
+    WFT_DIR=results/grofa_ens5_wiseft${ALPHA}_utkface
     $PY -c "
 import numpy as np; from pathlib import Path
 alpha=$ALPHA; sd='$ENS_UT'; bd='$UT_BASE'; od='$WFT_DIR'
@@ -157,7 +157,7 @@ for SDIR in "${UT_SEEDS[@]}"; do
     EVAL_DIR=$SDIR/eval_final
     if [ -f "$EVAL_DIR/summary_by_condition.csv" ]; then echo "  [SKIP] $SDIR"; continue; fi
     echo "  Eval $SDIR"
-    $PY src/evaluate_neurips_v2.py \
+    $PY src/evaluate_protocol.py \
         --base_train_npz $UT_BASE_TRAIN --base_test_npz $UT_BASE_TEST \
         --student_train_npz $SDIR/train_student.npz --student_test_npz $SDIR/test_student.npz \
         --out_dir $EVAL_DIR
@@ -165,16 +165,16 @@ done
 
 # Ensemble RAW
 echo "  Eval Ensemble RAW"
-$PY src/evaluate_neurips_v2.py \
+$PY src/evaluate_protocol.py \
     --base_train_npz $UT_BASE_TRAIN --base_test_npz $UT_BASE_TEST \
     --student_train_npz $ENS_UT/train_student.npz --student_test_npz $ENS_UT/test_student.npz \
     --out_dir $ENS_UT/eval_final
 
 # Ensemble + WiSE-FT
 for ALPHA in 0.60 0.90 0.95; do
-    WFT_DIR=results/neurips_v60_ens5_wiseft${ALPHA}_utkface
+    WFT_DIR=results/grofa_ens5_wiseft${ALPHA}_utkface
     echo "  Eval Ensemble WFT alpha=$ALPHA"
-    $PY src/evaluate_neurips_v2.py \
+    $PY src/evaluate_protocol.py \
         --base_train_npz $UT_BASE_TRAIN --base_test_npz $UT_BASE_TEST \
         --student_train_npz $WFT_DIR/train_student.npz --student_test_npz $WFT_DIR/test_student.npz \
         --out_dir $WFT_DIR/eval_final
@@ -200,14 +200,14 @@ def bm_wins(csv):
 print('=== FairFace ===')
 print(f'{\"Config\":20} {\"Total\":>6} {\"race\":>6} {\"gender\":>7} {\"age\":>5}')
 for label, csv in [
-    ('s0 (seed=42)', 'results/neurips_v60_fairface_s0/eval_final/summary_by_condition.csv'),
-    ('s1 (seed=0)', 'results/neurips_v60_fairface_s1/eval_final/summary_by_condition.csv'),
-    ('s2 (seed=1)', 'results/neurips_v60_fairface_s2/eval_final/summary_by_condition.csv'),
-    ('s4 (seed=2)', 'results/neurips_v60_fairface_s4/eval_final/summary_by_condition.csv'),
-    ('s5 (seed=3)', 'results/neurips_v60_fairface_s5/eval_final/summary_by_condition.csv'),
-    ('Ens5 RAW', 'results/neurips_v60_ensemble_5seed_fairface/eval_final/summary_by_condition.csv'),
-    ('Ens5+WFT0.90', 'results/neurips_v60_ens5_wiseft0.90_fairface/eval_final/summary_by_condition.csv'),
-    ('Ens5+WFT0.95', 'results/neurips_v60_ens5_wiseft0.95_fairface/eval_final/summary_by_condition.csv'),
+    ('s0 (seed=42)', 'results/grofa_fairface_s0/eval_final/summary_by_condition.csv'),
+    ('s1 (seed=0)', 'results/grofa_fairface_s1/eval_final/summary_by_condition.csv'),
+    ('s2 (seed=1)', 'results/grofa_fairface_s2/eval_final/summary_by_condition.csv'),
+    ('s4 (seed=2)', 'results/grofa_fairface_s4/eval_final/summary_by_condition.csv'),
+    ('s5 (seed=3)', 'results/grofa_fairface_s5/eval_final/summary_by_condition.csv'),
+    ('Ens5 RAW', 'results/grofa_ensemble_5seed_fairface/eval_final/summary_by_condition.csv'),
+    ('Ens5+WFT0.90', 'results/grofa_ens5_wiseft0.90_fairface/eval_final/summary_by_condition.csv'),
+    ('Ens5+WFT0.95', 'results/grofa_ens5_wiseft0.95_fairface/eval_final/summary_by_condition.csv'),
 ]:
     if not os.path.exists(csv): print(f'{label:20} NOT FOUND'); continue
     t, p = bm_wins(csv)
@@ -217,15 +217,15 @@ print()
 print('=== UTKFace ===')
 print(f'{\"Config\":20} {\"Total\":>6} {\"race\":>6} {\"gender\":>7} {\"age\":>5}')
 for label, csv in [
-    ('s0 (existing)', 'results/neurips_v60_ipmix_utkface_s0/eval_final/summary_by_condition.csv'),
-    ('s1 (seed=0)', 'results/neurips_v60_ipmix_utkface_s1/eval_final/summary_by_condition.csv'),
-    ('s2 (seed=1)', 'results/neurips_v60_ipmix_utkface_s2/eval_final/summary_by_condition.csv'),
-    ('s3 (seed=2)', 'results/neurips_v60_ipmix_utkface_s3/eval_final/summary_by_condition.csv'),
-    ('s4 (seed=3)', 'results/neurips_v60_ipmix_utkface_s4/eval_final/summary_by_condition.csv'),
-    ('Ens5 RAW', 'results/neurips_v60_ensemble_5seed_utkface/eval_final/summary_by_condition.csv'),
-    ('Ens5+WFT0.60', 'results/neurips_v60_ens5_wiseft0.60_utkface/eval_final/summary_by_condition.csv'),
-    ('Ens5+WFT0.90', 'results/neurips_v60_ens5_wiseft0.90_utkface/eval_final/summary_by_condition.csv'),
-    ('Ens5+WFT0.95', 'results/neurips_v60_ens5_wiseft0.95_utkface/eval_final/summary_by_condition.csv'),
+    ('s0 (existing)', 'results/grofa_ipmix_utkface_s0/eval_final/summary_by_condition.csv'),
+    ('s1 (seed=0)', 'results/grofa_ipmix_utkface_s1/eval_final/summary_by_condition.csv'),
+    ('s2 (seed=1)', 'results/grofa_ipmix_utkface_s2/eval_final/summary_by_condition.csv'),
+    ('s3 (seed=2)', 'results/grofa_ipmix_utkface_s3/eval_final/summary_by_condition.csv'),
+    ('s4 (seed=3)', 'results/grofa_ipmix_utkface_s4/eval_final/summary_by_condition.csv'),
+    ('Ens5 RAW', 'results/grofa_ensemble_5seed_utkface/eval_final/summary_by_condition.csv'),
+    ('Ens5+WFT0.60', 'results/grofa_ens5_wiseft0.60_utkface/eval_final/summary_by_condition.csv'),
+    ('Ens5+WFT0.90', 'results/grofa_ens5_wiseft0.90_utkface/eval_final/summary_by_condition.csv'),
+    ('Ens5+WFT0.95', 'results/grofa_ens5_wiseft0.95_utkface/eval_final/summary_by_condition.csv'),
 ]:
     if not os.path.exists(csv): print(f'{label:20} NOT FOUND'); continue
     t, p = bm_wins(csv)

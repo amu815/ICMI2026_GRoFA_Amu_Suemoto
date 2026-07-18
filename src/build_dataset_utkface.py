@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/build_dataset_neurips.py (v5: Fix Impulse & Add Cutout)
+src3/build_dataset_utkface.py (v5: Fix Impulse & Add Cutout)
 Corruption-dataset builder — UTKFace
 - RCIS設定準拠: 無作為抽出 5000 ID
 - Robust Walk: ディレクトリ構造を問わず画像を収集
@@ -236,7 +236,7 @@ def main():
                     noisy.save(dst_noisy)
                     rows.append({"id": f"{base_id}_{n_type}_lv{lvl}", "image": str(rel_noisy), "split": split_name, "noise_type": n_type, "noise_level": lvl, **attrs})
 
-        out_jsonl = args.out_dir / "jsonl" / f"neurips_{split_name}.jsonl"
+        out_jsonl = args.out_dir / "jsonl" / f"{split_name}_views.jsonl"
         with open(out_jsonl, "w") as f:
             for r in rows: f.write(json.dumps(r) + "\n")
         print(f"Saved {out_jsonl}")

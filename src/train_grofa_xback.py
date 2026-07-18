@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/train_neurips_v60_xback.py (ICMI 2026 — v60 with pluggable base backbones)
+src3/train_grofa_xback.py (ICMI 2026 — v60 with pluggable base backbones)
 
-Cross-backbone variant of train_neurips_v60.py. Adds --backbone {blip,clip,dinov2}
+Cross-backbone variant of train_grofa.py. Adds --backbone {blip,clip,dinov2}
 so DART can be trained on top of different frozen vision encoders (all 768-dim CLS):
 
   - blip    : Salesforce/blip-image-captioning-base (optionally with LoRA)
   - clip    : openai/clip-vit-base-patch16
   - dinov2  : facebook/dinov2-base
 
-All three return 768-dim CLS embeddings, so NeurIPSModelV28 consumes them without
+All three return 768-dim CLS embeddings, so GRoFAModelV28 consumes them without
 architectural changes. Per-backbone input normalization stats are applied
 automatically.
 """
@@ -37,7 +37,7 @@ from transformers import CLIPVisionModel
 from transformers import AutoModel
 from peft import PeftModel
 from models import (
-    NeurIPSModelV28, TDARRouter,
+    GRoFAModelV28, TDARRouter,
 )
 
 # --- External Loss Libraries ---
@@ -328,7 +328,7 @@ def compute_tda_scores(z_out, per_sample_losses, batch_losses,
 # ==========================================
 # Dataset (Same as v28)
 # ==========================================
-class NeurIPSData(Dataset):
+class CorruptedViewsData(Dataset):
     def __init__(self, jsonl_path, transform=None):
         self.jsonl_path = Path(jsonl_path)
         self.data_root = self.jsonl_path.parent.parent
@@ -714,10 +714,10 @@ def main():
 
     # --- Datasets ---
     tfm = get_transforms(args.backbone)
-    ds_train = NeurIPSData(args.train_jsonl, transform=tfm)
+    ds_train = CorruptedViewsData(args.train_jsonl, transform=tfm)
     dl_train = DataLoader(ds_train, batch_size=args.batch_size, shuffle=True,
                           num_workers=8, drop_last=True)
-    ds_val = NeurIPSData(args.val_jsonl, transform=tfm)
+    ds_val = CorruptedViewsData(args.val_jsonl, transform=tfm)
     dl_val = DataLoader(ds_val, batch_size=args.batch_size, shuffle=False,
                         num_workers=4, drop_last=False)
 
@@ -732,7 +732,7 @@ def main():
     base_model = load_backbone(args.backbone, args.lora_ckpt, args.lora_scale)
     teacher = load_backbone(args.backbone, args.lora_ckpt, args.lora_scale).to(DEVICE).eval()
 
-    model = NeurIPSModelV28(
+    model = GRoFAModelV28(
         base_model, num_race=num_groups, num_gender=2, num_age=num_ages,
         hidden_dim=384, arf_floor=args.arf_floor, gate_ceiling=args.gate_ceiling,
     ).to(DEVICE)
@@ -775,7 +775,7 @@ def main():
     crit_ce = nn.CrossEntropyLoss()
 
     # --- v51 NEW: Separate ArcFace (fixed weight, not routed) ---
-    from train_neurips_v49 import ArcFace as ArcFaceFixed, FocalLoss, GRL
+    from train_lora_backbone import ArcFace as ArcFaceFixed, FocalLoss, GRL
     arcface_fixed = ArcFaceFixed(768, num_groups, m=args.arc_margin, s=args.arc_scale).to(DEVICE)
     dom_head = nn.Linear(768, 2).to(DEVICE)
     focal_adv = FocalLoss()

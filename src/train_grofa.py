@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/train_neurips_v60.py (ICMI 2026 — RTDAR-G v60: v55b on IPMix LoRA Backbone)
+src3/train_grofa.py (ICMI 2026 — RTDAR-G v60: v55b on IPMix LoRA Backbone)
 
 Based on v55b with one key change:
   - Uses IPMix LoRA-finetuned BLIP as the frozen backbone (instead of vanilla BLIP)
@@ -38,7 +38,7 @@ from transformers import BlipModel
 from transformers import BlipForConditionalGeneration
 from peft import PeftModel
 from models import (
-    NeurIPSModelV28, TDARRouter,
+    GRoFAModelV28, TDARRouter,
 )
 
 # --- External Loss Libraries ---
@@ -265,7 +265,7 @@ def compute_tda_scores(z_out, per_sample_losses, batch_losses,
 # ==========================================
 # Dataset (Same as v28)
 # ==========================================
-class NeurIPSData(Dataset):
+class CorruptedViewsData(Dataset):
     def __init__(self, jsonl_path, transform=None):
         self.jsonl_path = Path(jsonl_path)
         self.data_root = self.jsonl_path.parent.parent
@@ -646,10 +646,10 @@ def main():
     delta_age_val = args.delta_age if use_aaac else None
 
     # --- Datasets ---
-    ds_train = NeurIPSData(args.train_jsonl, transform=get_transforms())
+    ds_train = CorruptedViewsData(args.train_jsonl, transform=get_transforms())
     dl_train = DataLoader(ds_train, batch_size=args.batch_size, shuffle=True,
                           num_workers=8, drop_last=True)
-    ds_val = NeurIPSData(args.val_jsonl, transform=get_transforms())
+    ds_val = CorruptedViewsData(args.val_jsonl, transform=get_transforms())
     dl_val = DataLoader(ds_val, batch_size=args.batch_size, shuffle=False,
                         num_workers=4, drop_last=False)
 
@@ -669,7 +669,7 @@ def main():
         _full_t = BlipModel.from_pretrained("Salesforce/blip-image-captioning-base")
         teacher = _full_t.vision_model.to(DEVICE).eval()
 
-    model = NeurIPSModelV28(
+    model = GRoFAModelV28(
         base_model, num_race=num_groups, num_gender=2, num_age=num_ages,
         hidden_dim=384, arf_floor=args.arf_floor, gate_ceiling=args.gate_ceiling,
     ).to(DEVICE)
@@ -712,7 +712,7 @@ def main():
     crit_ce = nn.CrossEntropyLoss()
 
     # --- v51 NEW: Separate ArcFace (fixed weight, not routed) ---
-    from train_neurips_v49 import ArcFace as ArcFaceFixed, FocalLoss, GRL
+    from train_lora_backbone import ArcFace as ArcFaceFixed, FocalLoss, GRL
     arcface_fixed = ArcFaceFixed(768, num_groups, m=args.arc_margin, s=args.arc_scale).to(DEVICE)
     dom_head = nn.Linear(768, 2).to(DEVICE)
     focal_adv = FocalLoss()

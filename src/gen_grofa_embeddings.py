@@ -2,10 +2,10 @@
 """Generate embeddings from v60 (DART on IPMix LoRA backbone).
 
 Usage:
-  python gen_v60_embeddings.py \
-    --jsonl data/processed/neurips_fairface/jsonl/neurips_train.jsonl \
-    --out_npz results/neurips_v60_fairface_s0/train_student.npz \
-    --model_path results/neurips_v60_fairface_s0/model_best.pt \
+  python gen_grofa_embeddings.py \
+    --jsonl data/processed/fairface_corrupted/jsonl/train_views.jsonl \
+    --out_npz results/grofa_fairface_s0/train_student.npz \
+    --model_path results/grofa_fairface_s0/model_best.pt \
     --lora_ckpt models/baselines_v2_fairface/IPMix/ema
 """
 import argparse
@@ -19,7 +19,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from transformers import BlipForConditionalGeneration
 from peft import PeftModel
-from models import NeurIPSModelV28
+from models import GRoFAModelV28
 
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -102,7 +102,7 @@ def main():
     base_model = load_lora_backbone(args.lora_ckpt, args.lora_scale)
 
     # Build model
-    model = NeurIPSModelV28(
+    model = GRoFAModelV28(
         base_model, num_race=num_race, num_gender=2, num_age=num_age,
         arf_floor=arf_floor, gate_ceiling=gate_ceiling,
     ).to(DEVICE)

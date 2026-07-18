@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-src3/evaluate_neurips_v2.py
+src3/evaluate_protocol.py
 GRoFA evaluation script (fixed 66-condition protocol)
 
-Key fixes over evaluate_neurips_legacy.py:
+Key fixes over the legacy evaluation script:
   1. LogReg trains on CLEAN embeddings only (not all 88k mixed)
   2. Per-seed train/test sub-split (80/20 stratified) -> non-zero std
   3. Fairness metrics: Accuracy Gap, Demographic Parity Difference, F1-macro
@@ -357,7 +357,7 @@ def evaluate_model(
 # ==========================================
 def main():
     parser = argparse.ArgumentParser(
-        description="NeurIPS Evaluation v2 (Fixed Protocol)"
+        description="GRoFA evaluation (fixed 66-condition protocol)"
     )
     parser.add_argument("--base_train_npz", required=True)
     parser.add_argument("--base_test_npz", required=True)

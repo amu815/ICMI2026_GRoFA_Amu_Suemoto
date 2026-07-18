@@ -13,13 +13,13 @@ SLOTS=(s0 s1 s2 s3 s4)
 run_one () {
     local BK=$1       # AugMix|PixMix
     local DS=$2       # fairface|utk
-    local JDIR=$3     # neurips_fairface | neurips_utk
+    local JDIR=$3     # fairface_corrupted | utkface_corrupted
     for i in ${!SEEDS[@]}; do
         SEED=${SEEDS[$i]}
         SLOT=${SLOTS[$i]}
         LC=${BK,,}    # lowercase
         DS_TAG=$( [ "$DS" = "fairface" ] && echo fairface || echo utkface )
-        SDIR=results/neurips_v60_${LC}_${DS_TAG}_${SLOT}
+        SDIR=results/grofa_${LC}_${DS_TAG}_${SLOT}
         LOG=${SDIR}.log
         LORA_CKPT=models/baselines_v2_${DS}/${BK}/ema
         if [ -f "$SDIR/model_best.pt" ]; then
@@ -31,9 +31,9 @@ run_one () {
             continue
         fi
         echo "$(date): Starting ${BK}-${DS_TAG} seed=${SEED} (${SLOT}) -> $SDIR"
-        CUDA_VISIBLE_DEVICES=0 $PY src/train_neurips_v60.py \
-            --train_jsonl data/processed/${JDIR}/jsonl/neurips_train.jsonl \
-            --val_jsonl data/processed/${JDIR}/jsonl/neurips_test.jsonl \
+        CUDA_VISIBLE_DEVICES=0 $PY src/train_grofa.py \
+            --train_jsonl data/processed/${JDIR}/jsonl/train_views.jsonl \
+            --val_jsonl data/processed/${JDIR}/jsonl/test_views.jsonl \
             --out_dir $SDIR \
             --lora_ckpt $LORA_CKPT \
             --seed $SEED \
@@ -43,11 +43,11 @@ run_one () {
 }
 
 # AugMix first (more likely to produce useful results at single-seed 51/58)
-run_one AugMix fairface neurips_fairface
-run_one AugMix utk      neurips_utk
+run_one AugMix fairface fairface_corrupted
+run_one AugMix utk      utkface_corrupted
 
 # Then PixMix (single-seed was weaker but try ensemble rescue)
-run_one PixMix fairface neurips_fairface
-run_one PixMix utk      neurips_utk
+run_one PixMix fairface fairface_corrupted
+run_one PixMix utk      utkface_corrupted
 
 echo "$(date): ALL BACKBONE TRAINING COMPLETE"
