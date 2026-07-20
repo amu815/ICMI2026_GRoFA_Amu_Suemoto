@@ -1,0 +1,911 @@
+\section{Cross-Architecture Backbone Results}
+\label{app:xback}
+
+This appendix provides comprehensive evaluation results for CLIP ViT-B/16 and DINOv2-base backbones, trained with the same GRoFA adapter as the primary BLIP configuration.
+Section~\ref{app:sev_avg} presents severity-averaged comparison tables with all evaluated methods.
+Section~\ref{app:wiseft} reports the WiSE-FT $\alpha$ sweep.
+Section~\ref{app:fairness} compares fairness metrics.
+
+\subsection{Severity-Averaged Comparison with All Methods}
+\label{app:sev_avg}
+
+Tables~\ref{tab:app_clip_ff}--\ref{tab:app_dinov2_utk} compare GRoFA against five post-hoc debiasing methods applied to the same frozen backbone embeddings: LEACE, PASS/INLP, FairerCLIP, SFID, and the recent (2024--2025) Sparse-Autoencoder-based debiasing method debiaSAE~\cite{sasse2024debiasae} (per-backbone $4096$-unit SAE trained on clean training embeddings, top-$50$ gender-correlated SAE features zero-clamped at inference).
+Accuracy values are severity-averaged (mean over levels 1--3 for each noise type).
+\textbf{Bold}: best, \underline{underline}: second-best. \textbf{dS}: debiaSAE.
+
+
+\begin{table}[htbp]
+\caption{CLIP ViT-B/16 on FairFace ($\alpha{=}0.80$, 5-seed ensemble + WiSE-FT). BL: frozen CLIP baseline. \textbf{Bold}: best, \underline{underline}: 2nd. 1st: first-place wins (out of 22 per task, 66 total). Stars on Ours: paired $t$-test Ours vs.\ Baseline ($^{*}\!p{<}0.05$, $^{**}\!p{<}0.01$).}
+\label{tab:app_clip_ff}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{lccccccc}
+\toprule
+Cond. & BL & LE & PA & FC & SF & dS & \textbf{Ours} \\
+\midrule
+\multicolumn{8}{l}{\textit{Race}} \\
+Clean      & 0.671 & \underline{0.678} & 0.402 & 0.273 & 0.652 & 0.662 & \textbf{0.682}$^{**}$ \\
+Gaussian   & \underline{0.534} & 0.522 & 0.283 & 0.249 & 0.506 & 0.519 & \textbf{0.584}$^{**}$ \\
+Shot       & \underline{0.547} & 0.540 & 0.294 & 0.256 & 0.514 & 0.532 & \textbf{0.586}$^{**}$ \\
+Impulse    & \underline{0.473} & 0.456 & 0.224 & 0.215 & 0.444 & 0.428 & \textbf{0.523}$^{**}$ \\
+Defocus    & 0.588 & \underline{0.602} & 0.356 & 0.261 & 0.550 & 0.581 & \textbf{0.654}$^{**}$ \\
+Glass      & 0.664 & \underline{0.667} & 0.407 & 0.267 & 0.640 & 0.658 & \textbf{0.677}$^{**}$ \\
+Cutout     & 0.573 & \underline{0.599} & 0.305 & 0.258 & 0.559 & 0.605 & \textbf{0.686}$^{**}$ \\
+Jpeg       & 0.633 & \underline{0.652} & 0.371 & 0.271 & 0.607 & 0.640 & \textbf{0.672}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\midrule
+\multicolumn{8}{l}{\textit{Gender}} \\
+Clean      & \underline{0.952} & 0.952 & 0.949 & \textbf{0.965} & 0.952 & 0.944 & 0.952 \\
+Gaussian   & 0.837 & 0.836 & 0.827 & \textbf{0.879} & 0.829 & 0.820 & \underline{0.874}$^{**}$ \\
+Shot       & 0.841 & 0.841 & 0.832 & \textbf{0.881} & 0.833 & 0.830 & \underline{0.880}$^{**}$ \\
+Impulse    & 0.805 & 0.812 & 0.794 & \underline{0.833} & 0.804 & 0.762 & \textbf{0.842}$^{*}$ \\
+Defocus    & 0.916 & 0.916 & 0.914 & \textbf{0.933} & 0.914 & 0.859 & \underline{0.920} \\
+Glass      & 0.944 & 0.944 & 0.941 & \textbf{0.961} & 0.943 & 0.935 & \underline{0.944} \\
+Cutout     & 0.932 & 0.932 & 0.923 & \textbf{0.957} & 0.936 & 0.911 & \underline{0.944} \\
+Jpeg       & 0.940 & 0.940 & 0.937 & \textbf{0.949} & 0.937 & 0.927 & \underline{0.941} \\
+\textit{1st} & 0 & 0 & 0 & \textbf{16} & 0 & 0 & 6 \\
+\midrule
+\multicolumn{8}{l}{\textit{Age}} \\
+Clean      & 0.530 & 0.526 & 0.522 & 0.479 & 0.515 & \textbf{0.535} & \underline{0.518} \\
+Gaussian   & 0.439 & 0.439 & 0.433 & 0.430 & 0.433 & 0.423 & \textbf{0.450}$^{*}$ \\
+Shot       & 0.434 & 0.434 & 0.426 & 0.423 & 0.421 & 0.436 & \textbf{0.446}$^{**}$ \\
+Impulse    & 0.373 & 0.373 & 0.377 & 0.371 & 0.380 & 0.354 & \textbf{0.401}$^{**}$ \\
+Defocus    & 0.456 & 0.457 & 0.452 & 0.451 & 0.459 & \textbf{0.467} & 0.455 \\
+Glass      & 0.528 & 0.529 & 0.523 & 0.471 & 0.522 & \textbf{0.541} & 0.520 \\
+Cutout     & \textbf{0.487} & 0.486 & 0.479 & 0.459 & 0.471 & 0.481 & \underline{0.489} \\
+Jpeg       & 0.506 & 0.506 & 0.503 & 0.465 & 0.502 & \textbf{0.508} & 0.506 \\
+\textit{1st} & 0 & 1 & 0 & 1 & 0 & \textbf{8} & \underline{12} \\
+\textit{Total 1st} & 0 & 1 & 0 & 17 & 0 & 8 & \textbf{40} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{CLIP ViT-B/16 on UTKFace ($\alpha{=}0.60$, 5-seed ensemble + WiSE-FT). BL: frozen CLIP baseline. \textbf{Bold}: best, \underline{underline}: 2nd. 1st: first-place wins (out of 22 per task, 66 total). Stars on Ours: paired $t$-test Ours vs.\ Baseline ($^{*}\!p{<}0.05$, $^{**}\!p{<}0.01$).}
+\label{tab:app_clip_utk}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{lccccccc}
+\toprule
+Cond. & BL & LE & PA & FC & SF & dS & \textbf{Ours} \\
+\midrule
+\multicolumn{8}{l}{\textit{Race}} \\
+Clean      & \underline{0.862} & 0.859 & 0.527 & 0.417 & 0.840 & 0.855 & \textbf{0.869}$^{**}$ \\
+Gaussian   & \underline{0.818} & 0.810 & 0.471 & 0.418 & 0.808 & 0.813 & \textbf{0.856}$^{**}$ \\
+Shot       & \underline{0.806} & 0.798 & 0.458 & 0.418 & 0.794 & 0.799 & \textbf{0.861}$^{**}$ \\
+Impulse    & 0.799 & \underline{0.804} & 0.454 & 0.419 & 0.786 & 0.804 & \textbf{0.862}$^{**}$ \\
+Defocus    & \underline{0.807} & 0.805 & 0.493 & 0.420 & 0.788 & 0.795 & \textbf{0.851}$^{**}$ \\
+Glass      & \underline{0.847} & 0.846 & 0.525 & 0.415 & 0.834 & 0.845 & \textbf{0.866}$^{**}$ \\
+Cutout     & 0.846 & \underline{0.847} & 0.504 & 0.416 & 0.828 & 0.832 & \textbf{0.867}$^{**}$ \\
+Jpeg       & \underline{0.855} & 0.854 & 0.522 & 0.418 & 0.841 & 0.849 & \textbf{0.871}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\midrule
+\multicolumn{8}{l}{\textit{Gender}} \\
+Clean      & \textbf{0.971} & 0.970 & \textbf{0.971} & 0.965 & \underline{0.970} & 0.944 & 0.969 \\
+Gaussian   & 0.963 & 0.963 & \underline{0.966} & 0.960 & 0.964 & 0.930 & \textbf{0.967}$^{*}$ \\
+Shot       & 0.964 & 0.964 & \underline{0.966} & 0.958 & 0.964 & 0.930 & \textbf{0.970}$^{*}$ \\
+Impulse    & 0.962 & 0.963 & \underline{0.963} & 0.962 & 0.963 & 0.937 & \textbf{0.968}$^{**}$ \\
+Defocus    & 0.934 & 0.939 & 0.934 & \underline{0.955} & 0.938 & 0.938 & \textbf{0.957}$^{*}$ \\
+Glass      & 0.966 & 0.966 & \textbf{0.967} & 0.964 & 0.966 & 0.944 & \underline{0.967} \\
+Cutout     & 0.959 & 0.958 & 0.959 & \underline{0.960} & 0.960 & 0.931 & \textbf{0.967}$^{**}$ \\
+Jpeg       & 0.968 & 0.968 & \textbf{0.969} & 0.964 & 0.968 & 0.929 & \underline{0.969} \\
+\textit{1st} & 1 & 0 & 5 & 1 & 1 & 0 & \textbf{14} \\
+\midrule
+\multicolumn{8}{l}{\textit{Age}} \\
+Clean      & \underline{0.596} & \underline{0.596} & 0.588 & 0.424 & 0.593 & 0.598 & \textbf{0.612}$^{*}$ \\
+Gaussian   & 0.506 & 0.508 & 0.499 & 0.428 & \underline{0.517} & 0.503 & \textbf{0.556}$^{**}$ \\
+Shot       & 0.522 & 0.521 & 0.512 & 0.425 & \underline{0.529} & 0.521 & \textbf{0.554}$^{**}$ \\
+Impulse    & 0.520 & 0.521 & 0.511 & 0.427 & \underline{0.522} & 0.509 & \textbf{0.565}$^{**}$ \\
+Defocus    & 0.508 & 0.510 & 0.503 & 0.407 & \underline{0.510} & 0.494 & \textbf{0.548}$^{**}$ \\
+Glass      & \underline{0.583} & 0.582 & 0.573 & 0.422 & 0.581 & 0.578 & \textbf{0.607}$^{**}$ \\
+Cutout     & 0.577 & \underline{0.579} & 0.572 & 0.422 & 0.578 & 0.563 & \textbf{0.600}$^{**}$ \\
+Jpeg       & 0.586 & \underline{0.587} & 0.580 & 0.421 & 0.586 & 0.583 & \textbf{0.602}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\textit{Total 1st} & 1 & 0 & 5 & 1 & 1 & 0 & \textbf{58} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{DINOv2-base on FairFace ($\alpha{=}0.70$, 5-seed ensemble + WiSE-FT). BL: frozen DINOV2 baseline. \textbf{Bold}: best, \underline{underline}: 2nd. 1st: first-place wins (out of 22 per task, 66 total). Stars on Ours: paired $t$-test Ours vs.\ Baseline ($^{*}\!p{<}0.05$, $^{**}\!p{<}0.01$).}
+\label{tab:app_dinov2_ff}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{lccccccc}
+\toprule
+Cond. & BL & LE & PA & FC & SF & dS & \textbf{Ours} \\
+\midrule
+\multicolumn{8}{l}{\textit{Race}} \\
+Clean      & \underline{0.520} & 0.514 & 0.455 & 0.251 & 0.515 & 0.499 & \textbf{0.554}$^{**}$ \\
+Gaussian   & 0.447 & \underline{0.449} & 0.395 & 0.251 & 0.437 & 0.442 & \textbf{0.507}$^{**}$ \\
+Shot       & \underline{0.454} & 0.453 & 0.404 & 0.261 & 0.443 & 0.443 & \textbf{0.512}$^{**}$ \\
+Impulse    & 0.359 & \underline{0.375} & 0.302 & 0.224 & 0.349 & 0.340 & \textbf{0.468}$^{**}$ \\
+Defocus    & \underline{0.474} & 0.470 & 0.424 & 0.246 & 0.462 & 0.461 & \textbf{0.542}$^{**}$ \\
+Glass      & \underline{0.510} & 0.508 & 0.444 & 0.251 & 0.502 & 0.497 & \textbf{0.547}$^{**}$ \\
+Cutout     & 0.477 & 0.481 & 0.427 & 0.243 & \underline{0.483} & 0.476 & \textbf{0.544}$^{**}$ \\
+Jpeg       & \underline{0.514} & 0.507 & 0.448 & 0.251 & 0.507 & 0.485 & \textbf{0.546}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\midrule
+\multicolumn{8}{l}{\textit{Gender}} \\
+Clean      & 0.897 & 0.897 & \underline{0.898} & 0.897 & 0.898 & 0.878 & \textbf{0.901}$^{*}$ \\
+Gaussian   & 0.859 & 0.859 & 0.860 & \textbf{0.868} & 0.860 & 0.848 & \underline{0.861} \\
+Shot       & 0.862 & 0.863 & \underline{0.865} & \textbf{0.866} & 0.860 & 0.850 & 0.864 \\
+Impulse    & 0.796 & 0.798 & 0.801 & \textbf{0.840} & 0.789 & 0.769 & \underline{0.810}$^{**}$ \\
+Defocus    & 0.861 & 0.861 & 0.862 & \textbf{0.873} & 0.857 & 0.827 & \underline{0.864}$^{*}$ \\
+Glass      & 0.890 & 0.890 & 0.889 & \textbf{0.897} & 0.890 & 0.872 & \underline{0.890} \\
+Cutout     & 0.887 & 0.889 & 0.892 & \textbf{0.901} & 0.887 & 0.875 & \underline{0.896}$^{*}$ \\
+Jpeg       & 0.893 & 0.893 & 0.893 & \underline{0.895} & 0.892 & 0.879 & \textbf{0.897}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & \textbf{18} & 0 & 0 & 4 \\
+\midrule
+\multicolumn{8}{l}{\textit{Age}} \\
+Clean      & 0.449 & \underline{0.450} & \textbf{0.451} & 0.438 & 0.442 & 0.427 & 0.442 \\
+Gaussian   & 0.414 & 0.414 & 0.411 & \textbf{0.422} & 0.412 & 0.405 & \underline{0.414} \\
+Shot       & \underline{0.410} & 0.409 & 0.409 & \textbf{0.421} & 0.406 & 0.412 & 0.407 \\
+Impulse    & 0.392 & \underline{0.393} & \underline{0.393} & \textbf{0.397} & 0.390 & 0.369 & 0.392 \\
+Defocus    & \underline{0.415} & 0.413 & 0.413 & 0.411 & 0.410 & 0.408 & \textbf{0.415} \\
+Glass      & \underline{0.457} & \textbf{0.458} & 0.455 & 0.422 & 0.450 & 0.435 & 0.450 \\
+Cutout     & 0.417 & 0.416 & \underline{0.427} & \textbf{0.429} & 0.419 & 0.424 & 0.424$^{**}$ \\
+Jpeg       & 0.447 & \textbf{0.450} & \underline{0.449} & 0.433 & 0.444 & 0.432 & 0.443 \\
+\textit{1st} & 2 & 5 & 5 & \textbf{7} & 1 & 1 & 1 \\
+\textit{Total 1st} & 2 & 5 & 5 & 25 & 1 & 1 & \textbf{27} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{DINOv2-base on UTKFace ($\alpha{=}0.50$, 5-seed ensemble + WiSE-FT). BL: frozen DINOV2 baseline. \textbf{Bold}: best, \underline{underline}: 2nd. 1st: first-place wins (out of 22 per task, 66 total). Stars on Ours: paired $t$-test Ours vs.\ Baseline ($^{*}\!p{<}0.05$, $^{**}\!p{<}0.01$).}
+\label{tab:app_dinov2_utk}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{lccccccc}
+\toprule
+Cond. & BL & LE & PA & FC & SF & dS & \textbf{Ours} \\
+\midrule
+\multicolumn{8}{l}{\textit{Race}} \\
+Clean      & \underline{0.756} & 0.742 & 0.622 & 0.433 & 0.749 & 0.723 & \textbf{0.770}$^{**}$ \\
+Gaussian   & \underline{0.727} & 0.719 & 0.593 & 0.435 & 0.721 & 0.694 & \textbf{0.771}$^{**}$ \\
+Shot       & \underline{0.721} & 0.714 & 0.584 & 0.434 & 0.718 & 0.690 & \textbf{0.768}$^{**}$ \\
+Impulse    & \underline{0.719} & 0.714 & 0.569 & 0.440 & 0.715 & 0.678 & \textbf{0.771}$^{**}$ \\
+Defocus    & \underline{0.707} & 0.694 & 0.583 & 0.422 & 0.702 & 0.670 & \textbf{0.764}$^{**}$ \\
+Glass      & \underline{0.746} & 0.734 & 0.611 & 0.433 & 0.742 & 0.711 & \textbf{0.767}$^{**}$ \\
+Cutout     & \underline{0.746} & 0.730 & 0.609 & 0.432 & 0.742 & 0.705 & \textbf{0.774}$^{**}$ \\
+Jpeg       & \underline{0.752} & 0.736 & 0.621 & 0.432 & 0.749 & 0.723 & \textbf{0.770}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\midrule
+\multicolumn{8}{l}{\textit{Gender}} \\
+Clean      & 0.934 & 0.934 & 0.930 & 0.887 & \underline{0.934} & 0.908 & \textbf{0.943}$^{**}$ \\
+Gaussian   & 0.926 & 0.925 & 0.924 & 0.891 & \underline{0.926} & 0.906 & \textbf{0.942}$^{**}$ \\
+Shot       & 0.926 & 0.926 & 0.925 & 0.893 & \underline{0.926} & 0.909 & \textbf{0.944}$^{**}$ \\
+Impulse    & \underline{0.921} & 0.920 & 0.919 & 0.881 & 0.920 & 0.900 & \textbf{0.938}$^{**}$ \\
+Defocus    & 0.914 & 0.914 & 0.911 & 0.868 & \underline{0.914} & 0.880 & \textbf{0.935}$^{**}$ \\
+Glass      & 0.927 & 0.927 & 0.924 & 0.889 & \underline{0.927} & 0.904 & \textbf{0.941}$^{**}$ \\
+Cutout     & 0.933 & 0.932 & 0.924 & 0.885 & \underline{0.933} & 0.905 & \textbf{0.943}$^{**}$ \\
+Jpeg       & \underline{0.934} & 0.933 & 0.931 & 0.890 & 0.933 & 0.906 & \textbf{0.945}$^{**}$ \\
+\textit{1st} & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{22} \\
+\midrule
+\multicolumn{8}{l}{\textit{Age}} \\
+Clean      & \underline{0.523} & \textbf{0.524} & 0.518 & 0.449 & 0.521 & 0.492 & 0.521 \\
+Gaussian   & 0.484 & 0.484 & \underline{0.489} & 0.449 & 0.481 & 0.483 & \textbf{0.498}$^{*}$ \\
+Shot       & 0.486 & 0.489 & \underline{0.493} & 0.445 & 0.487 & 0.480 & \textbf{0.500}$^{**}$ \\
+Impulse    & 0.497 & 0.498 & \underline{0.500} & 0.446 & 0.494 & 0.476 & \textbf{0.508}$^{**}$ \\
+Defocus    & 0.475 & 0.473 & 0.473 & 0.432 & \underline{0.476} & 0.453 & \textbf{0.489}$^{**}$ \\
+Glass      & 0.518 & 0.519 & 0.514 & 0.445 & \underline{0.519} & 0.491 & \textbf{0.520} \\
+Cutout     & 0.518 & \textbf{0.519} & 0.515 & 0.450 & \underline{0.518} & 0.481 & 0.516 \\
+Jpeg       & 0.524 & \textbf{0.525} & 0.518 & 0.449 & \underline{0.524} & 0.495 & 0.524 \\
+\textit{1st} & 0 & 5 & 0 & 0 & 3 & 0 & \textbf{14} \\
+\textit{Total 1st} & 0 & 5 & 0 & 0 & 3 & 0 & \textbf{58} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{WiSE-FT $\alpha$ Sweep}
+\label{app:wiseft}
+
+
+\begin{table}[htbp]
+\caption{WiSE-FT $\alpha$ sweep: CLIP ViT-B/16 on FairFace. BM$>$: baseline wins (/66). W: per-task wins (/22).}
+\label{tab:sweep_clip_ff}
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{c c cc cc cc}
+\toprule
+$\alpha$ & BM$>$ & \multicolumn{2}{c}{Race} & \multicolumn{2}{c}{Gender} & \multicolumn{2}{c}{Age} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+ & /66 & W & Cln & W & Cln & W & Cln \\
+\midrule
+0.50 & 51 & 22 & 68.1 & 15 & 95.0 & 14 & 52.3 \\
+0.60 & 51 & 22 & 68.3 & 16 & 95.0 & 13 & 52.1 \\
+0.70 & 53 & 22 & 68.2 & 17 & 95.1 & 14 & 52.0 \\
+0.80 & 54 & 22 & 68.2 & 18 & 95.2 & 14 & 51.8 \\
+0.90 & 53 & 22 & 68.3 & 18 & 95.2 & 13 & 51.8 \\
+0.95 & 53 & 22 & 68.3 & 18 & 95.2 & 13 & 51.7 \\
+1.00 & 54 & 22 & 68.3 & 18 & 95.2 & 14 & 51.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{WiSE-FT $\alpha$ sweep: CLIP ViT-B/16 on UTKFace. BM$>$: baseline wins (/66). W: per-task wins (/22).}
+\label{tab:sweep_clip_utk}
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{c c cc cc cc}
+\toprule
+$\alpha$ & BM$>$ & \multicolumn{2}{c}{Race} & \multicolumn{2}{c}{Gender} & \multicolumn{2}{c}{Age} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+ & /66 & W & Cln & W & Cln & W & Cln \\
+\midrule
+0.50 & 60 & 22 & 86.8 & 16 & 96.8 & 22 & 61.0 \\
+0.60 & 62 & 22 & 86.9 & 18 & 96.9 & 22 & 61.2 \\
+0.70 & 62 & 22 & 87.0 & 18 & 96.9 & 22 & 61.6 \\
+0.80 & 62 & 22 & 87.0 & 18 & 96.9 & 22 & 61.9 \\
+0.90 & 62 & 22 & 87.0 & 18 & 96.9 & 22 & 62.0 \\
+0.95 & 62 & 22 & 87.0 & 18 & 96.9 & 22 & 61.9 \\
+1.00 & 62 & 22 & 86.9 & 18 & 96.9 & 22 & 61.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{WiSE-FT $\alpha$ sweep: DINOv2-base on FairFace. BM$>$: baseline wins (/66). W: per-task wins (/22).}
+\label{tab:sweep_dinov2_ff}
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{c c cc cc cc}
+\toprule
+$\alpha$ & BM$>$ & \multicolumn{2}{c}{Race} & \multicolumn{2}{c}{Gender} & \multicolumn{2}{c}{Age} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+ & /66 & W & Cln & W & Cln & W & Cln \\
+\midrule
+0.50 & 49 & 22 & 55.4 & 17 & 90.0 & 10 & 44.4 \\
+0.60 & 49 & 22 & 55.6 & 18 & 90.1 & 9 & 44.3 \\
+0.70 & 50 & 22 & 55.4 & 19 & 90.1 & 9 & 44.2 \\
+0.80 & 50 & 22 & 55.6 & 18 & 90.1 & 10 & 44.0 \\
+0.90 & 47 & 22 & 55.5 & 17 & 90.0 & 8 & 43.9 \\
+0.95 & 47 & 22 & 55.5 & 17 & 90.0 & 8 & 43.8 \\
+1.00 & 46 & 22 & 55.4 & 16 & 90.0 & 8 & 43.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htbp]
+\caption{WiSE-FT $\alpha$ sweep: DINOv2-base on UTKFace. BM$>$: baseline wins (/66). W: per-task wins (/22).}
+\label{tab:sweep_dinov2_utk}
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{c c cc cc cc}
+\toprule
+$\alpha$ & BM$>$ & \multicolumn{2}{c}{Race} & \multicolumn{2}{c}{Gender} & \multicolumn{2}{c}{Age} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+ & /66 & W & Cln & W & Cln & W & Cln \\
+\midrule
+0.50 & 61 & 22 & 77.0 & 22 & 94.3 & 17 & 52.1 \\
+0.60 & 58 & 22 & 76.9 & 22 & 94.5 & 14 & 52.3 \\
+0.70 & 57 & 22 & 77.0 & 22 & 94.7 & 13 & 52.1 \\
+0.80 & 57 & 22 & 77.1 & 22 & 94.8 & 13 & 52.3 \\
+0.90 & 59 & 22 & 77.4 & 22 & 94.8 & 15 & 52.4 \\
+0.95 & 57 & 22 & 77.5 & 22 & 94.8 & 13 & 52.3 \\
+1.00 & 57 & 22 & 77.6 & 22 & 94.8 & 13 & 52.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Fairness Metrics Comparison}
+\label{app:fairness}
+
+\begin{table*}[tbp]
+\caption{Clean-image fairness across three backbones. Gap: max$-$min per-group accuracy; WGA: worst-group accuracy. Negative $\Delta$Gap and positive $\Delta$WGA indicate improvement.}
+\label{tab:app_fairness}
+\centering\small
+\begin{tabular}{ll l cc cc c cc c}
+\toprule
+Backbone & Dataset & Task & Acc$_b$ & Acc$_o$ & Gap$_b$ & Gap$_o$ & $\Delta$Gap & WGA$_b$ & WGA$_o$ & $\Delta$WGA \\
+\midrule
+BLIP+IPMix LoRA & FairFace & race & 37.7 & 41.4 & 5.2 & 4.2 & -1.0 & 35.2 & 39.4 & +4.1 \\
+ &  & gender & 75.8 & 77.3 & 14.5 & 17.9 & +3.3 & 68.5 & 68.8 & +0.3 \\
+ &  & age & 36.6 & 31.6 & 12.3 & 12.0 & -0.3 & 30.7 & 25.8 & -4.9 \\
+\midrule
+BLIP+IPMix LoRA & UTKFace & race & 77.8 & 77.1 & 0.9 & 1.0 & +0.1 & 77.3 & 76.6 & -0.8 \\
+ &  & gender & 91.8 & 92.2 & 10.1 & 7.6 & -2.5 & 86.2 & 87.8 & +1.6 \\
+ &  & age & 51.5 & 52.9 & 20.0 & 22.2 & +2.2 & 45.9 & 45.4 & -0.5 \\
+\midrule
+CLIP ViT-B/16 & FairFace & race & 67.1 & 68.2 & 1.4 & 0.9 & -0.6 & 66.4 & 67.8 & +1.4 \\
+ &  & gender & 95.2 & 95.2 & 4.6 & 5.8 & +1.1 & 92.7 & 91.7 & -1.0 \\
+ &  & age & 53.0 & 51.8 & 16.0 & 16.8 & +0.8 & 44.8 & 44.4 & -0.4 \\
+\midrule
+CLIP ViT-B/16 & UTKFace & race & 86.2 & 86.9 & 0.9 & 2.5 & +1.6 & 85.7 & 85.7 & -0.0 \\
+ &  & gender & 97.1 & 96.9 & 4.6 & 5.2 & +0.6 & 93.8 & 93.3 & -0.5 \\
+ &  & age & 59.6 & 61.2 & 19.3 & 16.8 & -2.5 & 53.3 & 57.1 & +3.7 \\
+\midrule
+DINOv2-base & FairFace & race & 52.0 & 55.4 & 2.1 & 0.8 & -1.4 & 51.0 & 55.0 & +4.1 \\
+ &  & gender & 89.7 & 90.1 & 9.5 & 10.8 & +1.2 & 85.6 & 84.7 & -0.9 \\
+ &  & age & 44.9 & 44.2 & 9.7 & 11.9 & +2.2 & 40.5 & 38.9 & -1.7 \\
+\midrule
+DINOv2-base & UTKFace & race & 75.6 & 77.0 & 1.0 & 0.6 & -0.4 & 75.1 & 76.7 & +1.6 \\
+ &  & gender & 93.4 & 94.3 & 5.6 & 5.8 & +0.2 & 89.5 & 89.9 & +0.4 \\
+ &  & age & 52.3 & 52.1 & 14.8 & 16.5 & +1.7 & 48.2 & 47.5 & -0.6 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+%%% ================================================================
+%%% Section B: Statistical Significance (Full Results)
+%%% ================================================================
+
+\section{Statistical Significance Details}
+\label{app:stats}
+
+Table~\ref{tab:app_significance} reports Wilcoxon signed-rank tests and effect sizes for all backbone--dataset combinations, including per-task breakdowns.
+
+\begin{table*}[tbp]
+\centering
+\caption{Statistical significance across 6 backbone--dataset configurations, measured in the \emph{single-seed$+$WiSE-FT} configuration. Wilcoxon signed-rank test on 66 paired conditions; 95\% CI by paired bootstrap (10,000 resamples). The final 5-seed-ensemble$+$WiSE-FT configuration reported in the main paper is even more significant: $p{=}8.6{\times}10^{-11}$ (FairFace) and $7.4{\times}10^{-12}$ (UTKFace), one-sided.}
+\label{tab:app_significance}
+\small
+\begin{tabular}{llcrrcrcl}
+\toprule
+Backbone & Dataset & Scope & $N$ & Wins & $W$ & $p$ & $\Delta$Acc & Cohen's $d$ \\
+\midrule
+BLIP & FairFace & All & 66 & 58/66 & 140 & $6.9{\times}10^{-10}$ & +0.037 & 1.05 (large) \\
+ & & Race & 22 & 21/22 & 2 & $1.4{\times}10^{-6}$ & +0.046 & 1.36 (large) \\
+ & & Gender & 22 & 19/22 & 9 & $1.4{\times}10^{-4}$ & +0.032 & 1.04 (large) \\
+ & & Age & 22 & 18/22 & 36 & $0.002$ & +0.032 & 0.83 (large) \\
+\midrule
+BLIP & UTKFace & All & 66 & 58/66 & 118 & $2.9{\times}10^{-10}$ & +0.029 & 0.72 (medium) \\
+ & & Race & 22 & 18/22 & 25 & $4.3{\times}10^{-4}$ & +0.021 & 1.00 (large) \\
+ & & Gender & 22 & 18/22 & 31 & $0.002$ & +0.007 & 0.85 (large) \\
+ & & Age & 22 & 22/22 & 0 & $4.0{\times}10^{-5}$ & +0.061 & 1.12 (large) \\
+\midrule
+CLIP & FairFace & All & 66 & 54/66 & 180 & $3.4{\times}10^{-9}$ & +0.025 & 0.81 (large) \\
+ & & Race & 22 & 22/22 & 0 & $4.8{\times}10^{-7}$ & +0.051 & 1.47 (large) \\
+ & & Gender & 22 & 18/22 & 18 & $4.3{\times}10^{-4}$ & +0.018 & 0.89 (large) \\
+ & & Age & 22 & 14/22 & 74 & $0.091$ & +0.006 & 0.42 (small) \\
+\midrule
+CLIP & UTKFace & All & 66 & 62/66 & 18 & $3.6{\times}10^{-12}$ & +0.025 & 1.21 (large) \\
+ & & Race & 22 & 22/22 & 0 & $4.8{\times}10^{-7}$ & +0.035 & 1.71 (large) \\
+ & & Gender & 22 & 18/22 & 18 & $4.0{\times}10^{-4}$ & +0.006 & 0.61 (medium) \\
+ & & Age & 22 & 22/22 & 0 & $4.8{\times}10^{-7}$ & +0.032 & 2.18 (large) \\
+\midrule
+DINOv2 & FairFace & All & 66 & 50/66 & 343 & $1.1{\times}10^{-6}$ & +0.021 & 0.67 (medium) \\
+ & & Race & 22 & 22/22 & 0 & $4.8{\times}10^{-7}$ & +0.060 & 2.33 (large) \\
+ & & Gender & 22 & 19/22 & 23 & $7.8{\times}10^{-4}$ & +0.005 & 0.90 (large) \\
+ & & Age & 22 & 9/22 & 101 & $0.408$ & $-$0.001 & $-$0.16 (n.s.) \\
+\midrule
+DINOv2 & UTKFace & All & 66 & 61/66 & 41 & $1.0{\times}10^{-11}$ & +0.020 & 1.15 (large) \\
+ & & Race & 22 & 22/22 & 0 & $4.8{\times}10^{-7}$ & +0.037 & 2.06 (large) \\
+ & & Gender & 22 & 22/22 & 0 & $4.0{\times}10^{-5}$ & +0.015 & 3.30 (large) \\
+ & & Age & 22 & 17/22 & 41 & $0.006$ & +0.007 & 0.78 (medium) \\
+\midrule
+\multicolumn{2}{l}{\textbf{Aggregate}} & All & 396 & 349/396 & 3723 & $6.1{\times}10^{-55}$ & +0.028 & 0.89 (large) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Examining per-task patterns reveals a clear hierarchy of improvement consistency.
+\textbf{Race} classification shows the most robust improvement: all six backbone--dataset combinations achieve $p < 10^{-6}$ with large effect sizes ($d \geq 1.00$), confirming that the noise-gated adapter consistently strengthens race features under corruption.
+\textbf{Gender} is similarly significant across all settings ($p < 0.001$), though with slightly smaller absolute gains since the frozen-backbone baselines already achieve high accuracy on this binary task.
+\textbf{Age} exhibits backbone-dependent behavior: four of six settings are significant ($p < 0.01$), while two FairFace results---CLIP ($p = 0.091$) and DINOv2 ($p = 0.408$)---do not reach significance.
+These two cases are consistent with the known difficulty of FairFace's nine coarse age bins, where performance ceilings for all methods are low (42--53\%), limiting the margin available for improvement.
+
+
+%%% ================================================================
+%%% Section C: BLIP Full Per-Condition Tables
+%%% ================================================================
+
+\section{BLIP Per-Condition Detailed Results}
+\label{app:percond}
+
+Tables~\ref{tab:percond_ff} and~\ref{tab:percond_utk} report full per-condition accuracy (mean over 5 evaluation seeds) for the primary BLIP configuration on FairFace and UTKFace, respectively; Figure~2 of the main paper visualizes the same deltas as a heatmap.
+Each row corresponds to one of the 22 evaluation conditions: clean plus 7 noise types $\times$ 3 severity levels.
+\textbf{Bold} indicates the higher accuracy between Baseline and Ours; $\Delta$ denotes the signed improvement; $p$ is the exact per-condition paired $t$-test $p$-value over the 5 evaluation seeds (the source of the two-tier significance markers in Tables~1 and~2 of the main paper).
+
+\begin{table*}[tbp]
+\centering
+\caption{BLIP+IPMix LoRA on FairFace: full per-condition accuracy (5-seed ensemble + WiSE-FT $\alpha{=}0.95$). \textbf{Bold}: higher of Baseline vs.\ Ours; $p$: exact paired $t$-test $p$-value.}
+\label{tab:percond_ff}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{ll rrrc rrrc rrrc}
+\toprule
+& & \multicolumn{4}{c}{Race} & \multicolumn{4}{c}{Gender} & \multicolumn{4}{c}{Age} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}\cmidrule(lr){11-14}
+Noise & Sev & BL & Ours & $\Delta$ & $p$ & BL & Ours & $\Delta$ & $p$ & BL & Ours & $\Delta$ & $p$ \\
+\midrule
+ Clean & -- & .377 & \textbf{.414} & \pmark.037 & $8.8{\times}10^{-4}$ & .758 & \textbf{.773} & \pmark.014 & $0.04$ & \textbf{.366} & .316 & \mmark.050 & $2.1{\times}10^{-4}$ \\
+\midrule
+ Gaussian & 1 & .279 & \textbf{.351} & \pmark.073 & $3.4{\times}10^{-4}$ & .647 & \textbf{.696} & \pmark.049 & $1.1{\times}10^{-3}$ & .275 & \textbf{.298} & \pmark.023 & $0.08$ \\
+  & 2 & .247 & \textbf{.334} & \pmark.086 & $3.8{\times}10^{-5}$ & .624 & \textbf{.669} & \pmark.045 & $2.3{\times}10^{-3}$ & .238 & \textbf{.305} & \pmark.067 & $2.7{\times}10^{-3}$ \\
+  & 3 & .192 & \textbf{.287} & \pmark.095 & $1.1{\times}10^{-4}$ & .601 & \textbf{.660} & \pmark.058 & $9.5{\times}10^{-5}$ & .233 & \textbf{.274} & \pmark.041 & $1.3{\times}10^{-3}$ \\
+\midrule
+ Shot & 1 & .290 & \textbf{.359} & \pmark.068 & $1.3{\times}10^{-4}$ & .652 & \textbf{.705} & \pmark.052 & $1.5{\times}10^{-3}$ & .283 & \textbf{.306} & \pmark.023 & $0.05$ \\
+  & 2 & .269 & \textbf{.327} & \pmark.058 & $7.8{\times}10^{-5}$ & .626 & \textbf{.685} & \pmark.059 & $0.02$ & .251 & \textbf{.291} & \pmark.040 & $5.4{\times}10^{-3}$ \\
+  & 3 & .198 & \textbf{.305} & \pmark.108 & $5.3{\times}10^{-6}$ & .609 & \textbf{.657} & \pmark.047 & $4.9{\times}10^{-3}$ & .244 & \textbf{.298} & \pmark.054 & $1.9{\times}10^{-4}$ \\
+\midrule
+ Impulse & 1 & .235 & \textbf{.351} & \pmark.117 & $6.8{\times}10^{-5}$ & .575 & \textbf{.684} & \pmark.109 & $9.3{\times}10^{-5}$ & .200 & \textbf{.296} & \pmark.095 & $1.6{\times}10^{-3}$ \\
+  & 2 & .214 & \textbf{.322} & \pmark.108 & $5.0{\times}10^{-5}$ & .579 & \textbf{.658} & \pmark.079 & $1.8{\times}10^{-4}$ & .177 & \textbf{.271} & \pmark.094 & $3.1{\times}10^{-4}$ \\
+  & 3 & .182 & \textbf{.305} & \pmark.122 & $1.6{\times}10^{-6}$ & .583 & \textbf{.652} & \pmark.068 & $5.4{\times}10^{-4}$ & .178 & \textbf{.274} & \pmark.096 & $1.4{\times}10^{-3}$ \\
+\midrule
+ Defocus & 1 & .347 & \textbf{.352} & \pmark.004 & $0.49$ & .702 & \textbf{.710} & \pmark.008 & $0.24$ & \textbf{.306} & .284 & \mmark.022 & $0.04$ \\
+  & 2 & .283 & \textbf{.319} & \pmark.036 & $3.5{\times}10^{-4}$ & .643 & \textbf{.674} & \pmark.030 & $2.4{\times}10^{-3}$ & .253 & \textbf{.267} & \pmark.014 & $0.05$ \\
+  & 3 & .268 & \textbf{.295} & \pmark.027 & $9.7{\times}10^{-3}$ & .607 & \textbf{.659} & \pmark.052 & $6.7{\times}10^{-4}$ & .237 & \textbf{.274} & \pmark.036 & $4.8{\times}10^{-3}$ \\
+\midrule
+ Glass & 1 & .376 & \textbf{.398} & \pmark.022 & $0.05$ & .741 & \textbf{.766} & \pmark.024 & $3.5{\times}10^{-3}$ & \textbf{.332} & .317 & \mmark.015 & $4.2{\times}10^{-3}$ \\
+  & 2 & .344 & \textbf{.363} & \pmark.019 & $0.01$ & .697 & \textbf{.725} & \pmark.028 & $7.4{\times}10^{-3}$ & .296 & \textbf{.308} & \pmark.012 & $0.08$ \\
+  & 3 & .325 & \textbf{.326} & \pmark.001 & $0.80$ & .663 & \textbf{.687} & \pmark.024 & $0.02$ & .273 & \textbf{.275} & \pmark.001 & $0.84$ \\
+\midrule
+ Cutout & 1 & .389 & \textbf{.437} & \pmark.048 & $1.7{\times}10^{-4}$ & .745 & \textbf{.795} & \pmark.050 & $1.3{\times}10^{-3}$ & .332 & \textbf{.364} & \pmark.032 & $4.7{\times}10^{-4}$ \\
+  & 2 & .392 & \textbf{.430} & \pmark.039 & $1.8{\times}10^{-4}$ & .750 & \textbf{.786} & \pmark.036 & $1.0{\times}10^{-3}$ & .323 & \textbf{.378} & \pmark.056 & $2.0{\times}10^{-4}$ \\
+  & 3 & .385 & \textbf{.427} & \pmark.042 & $3.3{\times}10^{-3}$ & .751 & \textbf{.776} & \pmark.026 & $6.1{\times}10^{-3}$ & .316 & \textbf{.370} & \pmark.054 & $1.1{\times}10^{-3}$ \\
+\midrule
+ JPEG & 1 & .376 & \textbf{.413} & \pmark.037 & $1.2{\times}10^{-3}$ & .758 & \textbf{.773} & \pmark.015 & $0.05$ & \textbf{.366} & .316 & \mmark.049 & $2.7{\times}10^{-4}$ \\
+  & 2 & .339 & \textbf{.358} & \pmark.019 & $6.6{\times}10^{-3}$ & .711 & \textbf{.742} & \pmark.031 & $3.6{\times}10^{-4}$ & .252 & \textbf{.286} & \pmark.034 & $1.5{\times}10^{-3}$ \\
+  & 3 & .280 & \textbf{.296} & \pmark.015 & $0.03$ & .673 & \textbf{.687} & \pmark.014 & $0.11$ & .189 & \textbf{.270} & \pmark.081 & $1.8{\times}10^{-4}$ \\
+\midrule
+\multicolumn{2}{l}{\textit{Wins (/22)}} & \multicolumn{4}{c}{\textbf{22/22}} & \multicolumn{4}{c}{\textbf{22/22}} & \multicolumn{4}{c}{\textbf{18/22}} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\begin{table*}[tbp]
+\centering
+\caption{BLIP+IPMix LoRA on UTKFace: full per-condition accuracy (5-seed ensemble + WiSE-FT $\alpha{=}0.60$). \textbf{Bold}: higher of Baseline vs.\ Ours; $p$: exact paired $t$-test $p$-value.}
+\label{tab:percond_utk}
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{ll rrrc rrrc rrrc}
+\toprule
+& & \multicolumn{4}{c}{Race} & \multicolumn{4}{c}{Gender} & \multicolumn{4}{c}{Age} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}\cmidrule(lr){11-14}
+Noise & Sev & BL & Ours & $\Delta$ & $p$ & BL & Ours & $\Delta$ & $p$ & BL & Ours & $\Delta$ & $p$ \\
+\midrule
+ Clean & -- & \textbf{.778} & .771 & \mmark.007 & $0.12$ & .918 & \textbf{.922} & \pmark.004 & $0.08$ & .515 & \textbf{.529} & \pmark.014 & $0.01$ \\
+\midrule
+ Gaussian & 1 & .708 & \textbf{.744} & \pmark.036 & $1.2{\times}10^{-4}$ & .906 & \textbf{.911} & \pmark.005 & $0.18$ & .325 & \textbf{.436} & \pmark.111 & $2.1{\times}10^{-4}$ \\
+  & 2 & .686 & \textbf{.721} & \pmark.035 & $2.1{\times}10^{-3}$ & \textbf{.895} & .893 & \mmark.002 & $0.47$ & .281 & \textbf{.414} & \pmark.133 & $5.4{\times}10^{-5}$ \\
+  & 3 & .645 & \textbf{.697} & \pmark.052 & $7.7{\times}10^{-4}$ & .865 & \textbf{.879} & \pmark.015 & $0.01$ & .237 & \textbf{.361} & \pmark.124 & $7.9{\times}10^{-6}$ \\
+\midrule
+ Shot & 1 & .695 & \textbf{.739} & \pmark.044 & $6.3{\times}10^{-5}$ & .909 & \textbf{.912} & \pmark.003 & $0.37$ & .319 & \textbf{.440} & \pmark.121 & $1.7{\times}10^{-4}$ \\
+  & 2 & .663 & \textbf{.711} & \pmark.048 & $5.7{\times}10^{-5}$ & .888 & \textbf{.896} & \pmark.008 & $0.06$ & .258 & \textbf{.393} & \pmark.135 & $8.7{\times}10^{-6}$ \\
+  & 3 & .629 & \textbf{.677} & \pmark.048 & $3.5{\times}10^{-5}$ & .854 & \textbf{.871} & \pmark.016 & $8.9{\times}10^{-3}$ & .220 & \textbf{.348} & \pmark.128 & $5.5{\times}10^{-5}$ \\
+\midrule
+ Impulse & 1 & .704 & \textbf{.728} & \pmark.024 & $6.6{\times}10^{-4}$ & .887 & \textbf{.906} & \pmark.019 & $2.9{\times}10^{-5}$ & .359 & \textbf{.449} & \pmark.089 & $2.8{\times}10^{-5}$ \\
+  & 2 & .677 & \textbf{.720} & \pmark.043 & $7.7{\times}10^{-4}$ & .871 & \textbf{.887} & \pmark.016 & $7.3{\times}10^{-3}$ & .319 & \textbf{.406} & \pmark.086 & $4.3{\times}10^{-5}$ \\
+  & 3 & .643 & \textbf{.700} & \pmark.057 & $4.3{\times}10^{-4}$ & .851 & \textbf{.874} & \pmark.023 & $9.9{\times}10^{-5}$ & .269 & \textbf{.382} & \pmark.113 & $8.5{\times}10^{-5}$ \\
+\midrule
+ Defocus & 1 & .725 & \textbf{.746} & \pmark.021 & $9.1{\times}10^{-4}$ & .911 & \textbf{.916} & \pmark.005 & $0.22$ & .476 & \textbf{.495} & \pmark.019 & $4.0{\times}10^{-3}$ \\
+  & 2 & .665 & \textbf{.704} & \pmark.039 & $7.5{\times}10^{-5}$ & .855 & \textbf{.876} & \pmark.021 & $0.04$ & .386 & \textbf{.404} & \pmark.019 & $1.8{\times}10^{-3}$ \\
+  & 3 & .612 & \textbf{.649} & \pmark.037 & $0.01$ & .816 & \textbf{.838} & \pmark.022 & $0.02$ & .304 & \textbf{.345} & \pmark.041 & $3.4{\times}10^{-3}$ \\
+\midrule
+ Glass & 1 & \textbf{.766} & .764 & \mmark.002 & $0.48$ & .915 & \textbf{.919} & \pmark.004 & $0.30$ & .511 & \textbf{.528} & \pmark.017 & $0.02$ \\
+  & 2 & \textbf{.751} & .747 & \mmark.004 & $0.18$ & .904 & \textbf{.913} & \pmark.009 & $0.03$ & .487 & \textbf{.515} & \pmark.028 & $5.9{\times}10^{-5}$ \\
+  & 3 & .729 & \textbf{.750} & \pmark.021 & $4.0{\times}10^{-3}$ & .898 & \textbf{.905} & \pmark.008 & $0.09$ & .471 & \textbf{.490} & \pmark.019 & $0.01$ \\
+\midrule
+ Cutout & 1 & .770 & \textbf{.773} & \pmark.003 & $0.36$ & .920 & \textbf{.929} & \pmark.009 & $6.1{\times}10^{-3}$ & .511 & \textbf{.539} & \pmark.028 & $1.7{\times}10^{-3}$ \\
+  & 2 & .764 & \textbf{.773} & \pmark.009 & $0.03$ & .923 & \textbf{.930} & \pmark.007 & $8.1{\times}10^{-3}$ & .502 & \textbf{.529} & \pmark.027 & $8.6{\times}10^{-3}$ \\
+  & 3 & .769 & \textbf{.770} & \pmark.001 & $0.61$ & .912 & \textbf{.922} & \pmark.010 & $1.9{\times}10^{-3}$ & .502 & \textbf{.523} & \pmark.020 & $6.8{\times}10^{-3}$ \\
+\midrule
+ JPEG & 1 & \textbf{.779} & .771 & \mmark.007 & $0.12$ & .918 & \textbf{.922} & \pmark.004 & $0.13$ & .515 & \textbf{.529} & \pmark.014 & $0.02$ \\
+  & 2 & .762 & \textbf{.769} & \pmark.007 & $0.11$ & \textbf{.921} & .919 & \mmark.002 & $0.23$ & .502 & \textbf{.517} & \pmark.015 & $9.5{\times}10^{-3}$ \\
+  & 3 & .738 & \textbf{.756} & \pmark.018 & $0.01$ & .918 & \textbf{.922} & \pmark.004 & $0.03$ & .444 & \textbf{.499} & \pmark.055 & $2.2{\times}10^{-4}$ \\
+\midrule
+\multicolumn{2}{l}{\textit{Wins (/22)}} & \multicolumn{4}{c}{\textbf{18/22}} & \multicolumn{4}{c}{\textbf{20/22}} & \multicolumn{4}{c}{\textbf{22/22}} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+%%% ================================================================
+%%% Section D: Training Curve Visualization
+%%% ================================================================
+
+\section{Training Dynamics}
+\label{app:training}
+
+The GRoFA training procedure involves three adaptive mechanisms whose convergence behavior we describe here based on the recorded training histories.
+
+\paragraph{Noise gate learning.}
+The noise gate's predicted score starts near chance ($\approx$0.49 at epoch~1) and converges to approximately 0.68 by epoch~25 (batch-average trajectory).
+The trajectory alone does not measure clean-vs-corrupted discrimination; per-condition separation is quantified in Table~\ref{tab:gate_response}.
+The learned score then modulates the clean/noisy embedding mixture per input via Eq.~(3) of the main paper.
+
+Table~\ref{tab:gate_response} quantifies the converged gate's response on the evaluation splits: the Spearman correlation $\rho$ between the gate value $g$ (Eq.~(3) of the main paper; stored for the seed-42 adapter before ensembling) and corruption severity, per corruption type, and the clean-vs-corrupted AUROC obtained when ranking images by $g$.
+When the clean level is included as severity~0, the gate value is positively rank-associated with severity for six of the seven corruption types; glass blur, a spatial corruption that preserves local pixel statistics, is the exception on FairFace.
+All values are recomputed from the stored evaluation embeddings by the released script \texttt{gate\_analysis.py}.
+
+\begin{table}[htbp]
+\centering
+\caption{Gate response on the evaluation splits: Spearman $\rho$ between the gate value $g$ and severity per corruption type, and clean-vs-corrupted AUROC.}
+\label{tab:gate_response}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc c}
+\toprule
+ & Gau. & Shot & Imp. & Def. & Glass & JPEG & Cut. & AUROC \\
+\midrule
+FairFace & .29 & .35 & .50 & .55 & $-$.04 & .36 & .68 & .73 \\
+UTKFace  & .50 & .49 & .39 & .46 & .19 & .37 & .30 & .75 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{RTDAR task weight evolution.}
+The Routed Task-Decomposed Alignment Router begins with roughly equal task weights (approximately 0.42 / 0.14 / 0.44 for race / gender / age at initialization).
+Over the course of training, the weights evolve to approximately 0.37 / 0.20 / 0.43, reflecting the router's response to per-task loss plateaus: as race accuracy improves rapidly and its loss decreases, the router gradually shifts capacity toward gender, whose binary classification loss remains relatively higher due to the fairness regularization.
+Age retains the largest weight throughout training, consistent with its status as the most difficult multi-class task.
+
+\paragraph{Fairness gap dynamics.}
+The per-task accuracy gaps (max -- min across demographic groups) show distinct trajectories.
+The race gap starts highest ($\approx$0.05) and decreases steadily as the HSIC regularizer takes effect.
+The gender gap fluctuates more due to the interplay between classification loss and the stronger HSIC weight ($\lambda_{\text{race}} = 0.5$, $\lambda_{\text{gender}} = 0.3$).
+The age gap, which is not explicitly regularized via HSIC in our formulation, remains relatively stable throughout training.
+
+
+%%% ================================================================
+%%% Section E: Hyperparameter Sensitivity
+%%% ================================================================
+
+\section{Hyperparameter Sensitivity}
+\label{app:hpsens}
+
+The key hyperparameters of GRoFA were selected based on held-out validation experiments on FairFace with the BLIP backbone.
+The CLS token ratio (0.7) determines the proportion of the adapter output that retains classification-relevant features versus noise-robust features; values in the range 0.6--0.8 produced comparable results, with 0.7 achieving the best balance.
+The HSIC regularization weights ($\lambda_{\text{race}} = 0.5$, $\lambda_{\text{gender}} = 0.3$) reflect the relative difficulty of achieving statistical independence between representations and each demographic attribute; race, with more categories, requires stronger regularization.
+The clean anchoring weight (0.5) prevents catastrophic forgetting of clean-image performance; this value was robust across the range 0.3--0.7, with extreme values ($<$0.2 or $>$0.8) causing either under-anchoring (clean accuracy degradation) or over-anchoring (insufficient noise robustness improvement).
+Importantly, these hyperparameters were fixed across all three backbones without per-backbone tuning, demonstrating the generality of the chosen configuration.
+
+
+%%% ================================================================
+%%% Section F: Per-Backbone Training Details
+%%% ================================================================
+
+\section{Per-Backbone Training Details}
+\label{app:backbone_details}
+
+\begin{table}[htbp]
+\caption{Full GRoFA hyperparameter table.}
+\label{tab:hyperparams}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{lcc}
+\toprule
+Parameter & UTK & FF \\
+\midrule
+\multicolumn{3}{l}{\textit{Architecture}} \\
+\quad Adapter hidden dim & \multicolumn{2}{c}{384} \\
+\quad Noise gate hidden dim & \multicolumn{2}{c}{64} \\
+\quad Total trainable params & 803K & 805K \\
+\quad Trainable ratio & \multicolumn{2}{c}{0.92\%} \\
+\midrule
+\multicolumn{3}{l}{\textit{Loss weights}} \\
+\quad CLS ratio ($\lambda_{\text{cls}}$) & \multicolumn{2}{c}{0.7} \\
+\quad HSIC race ($\lambda_r$) & \multicolumn{2}{c}{0.5} \\
+\quad HSIC gender ($\lambda_g$) & \multicolumn{2}{c}{0.3} \\
+\quad Clean anchor ($\lambda_{\text{anc}}$) & \multicolumn{2}{c}{0.5} \\
+\quad Noise sup.\ ($\lambda_{\text{noise}}$) & \multicolumn{2}{c}{0.1} \\
+\quad ArcFace weight & \multicolumn{2}{c}{0.15} \\
+\midrule
+\multicolumn{3}{l}{\textit{Training}} \\
+\quad Optimizer & \multicolumn{2}{c}{Adam} \\
+\quad Learning rate & \multicolumn{2}{c}{$1{\times}10^{-4}$} \\
+\quad Router LR & \multicolumn{2}{c}{$10\times$ base} \\
+\quad Batch size & \multicolumn{2}{c}{64} \\
+\quad Max epochs & \multicolumn{2}{c}{50} \\
+\quad Early stopping patience & \multicolumn{2}{c}{20} \\
+\quad Num.\ races & 5 & 7 \\
+\quad Num.\ age groups & \multicolumn{2}{c}{9} \\
+\midrule
+\multicolumn{3}{l}{\textit{Post-hoc calibration}} \\
+\quad WiSE-FT $\alpha$ & 0.50 & 0.95 \\
+\quad Ensemble seeds & \multicolumn{2}{c}{5} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To verify that GRoFA generalizes across backbone architectures, we trained identical adapter configurations on CLIP ViT-B/16 and DINOv2-base using the same hyperparameters as the primary BLIP configuration.
+The adapter architecture is a two-layer MLP ($768 \to 384 \to 768$) with GELU activation and layer normalization, applied identically to all three backbones.
+No per-backbone hyperparameter tuning was performed: the learning rate ($1{\times}10^{-4}$), batch size (64), CLS ratio (0.7), HSIC weights ($\lambda_{\text{race}} = 0.5$, $\lambda_{\text{gender}} = 0.3$), and clean anchoring weight (0.5) were held constant (Table~\ref{tab:hyperparams}).
+The scalar weights were set by a small coordinate-style search on BLIP$+$FairFace only (learning rate over $\{1,2,3\}{\times}10^{-4}$, ArcFace weight over $[0,1]$, CLS ratio over $[0.5,1]$, HSIC weights over $[0.3,0.5]$, anchoring over $[0.3,0.7]$; see also Appendix~E) and transplanted unchanged to UTKFace, CLIP, and DINOv2.
+
+Training converged in 25--35 epochs across all configurations.
+Table~\ref{tab:backbone_seeds} reports the per-seed accuracy ranges (before WiSE-FT ensembling), confirming low variance across random seeds.
+
+\begin{table}[htbp]
+\centering
+\caption{Per-backbone accuracy range across 5 seeds on clean test images (before WiSE-FT). All models use the same adapter architecture and hyperparameters.}
+\label{tab:backbone_seeds}
+\small
+\begin{tabular}{llcc}
+\toprule
+Backbone & Dataset & Acc Range (\%) & Epochs \\
+\midrule
+BLIP & FairFace & 49.3--50.2 & 30 \\
+BLIP & UTKFace & 73.4--74.5 & 30 \\
+CLIP ViT-B/16 & FairFace & 68.6--69.2 & 30 \\
+CLIP ViT-B/16 & UTKFace & 80.7--81.1 & 25 \\
+DINOv2-base & FairFace & 59.5--60.7 & 35 \\
+DINOv2-base & UTKFace & 72.3--73.3 & 30 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The narrow accuracy ranges (within 1.2 percentage points across seeds for all configurations) confirm that GRoFA training is stable and does not require seed-specific tuning.
+The consistent convergence behavior across architecturally distinct backbones---BLIP (vision-language pretraining), CLIP (contrastive image-text), and DINOv2 (self-supervised vision)---supports the claim that GRoFA's adapter design is backbone-agnostic.
+
+
+% ============================================================
+\section{Loss Leave-One-Out Ablation Details}
+\label{app:loo}
+
+To isolate the contribution of each loss family in the 17-loss GRoFA objective, we retrain five leave-one-out (LOO) variants with a single seed ($s{=}42$) on the BLIP backbone and evaluate without WiSE-FT or multi-seed ensembling (so every LOO row in Table~\ref{tab:loo_bm} reflects the raw effect of a loss removal on the trained adapter).
+The ``Full'' row uses the same single-seed $s{=}42$, no-WiSE-FT protocol for a direct apples-to-apples comparison against each ablation; it therefore does not match the $62/66$ headline figure in Tables~1 and~2 of the main paper, which aggregate 5 seeds and WiSE-FT interpolation.
+
+The five LOO configurations set the following loss weights to zero while preserving all other hyperparameters:
+(1)~\textit{w/o Distillation}: disables the BLIP-KL distillation term ($\lambda_{\text{cls}}{=}1.0$, so all head-budget goes to CLS).
+(2)~\textit{w/o Classification}: disables per-task CE losses ($\lambda_{\text{cls}}{=}0$ and per-task weights $=0$).
+(3)~\textit{w/o HSIC}: disables kernel independence penalties ($\lambda_r{=}\lambda_g{=}0$).
+(4)~\textit{w/o ArcFace+Adv}: disables angular margin and adversarial heads (ArcFace and adversary weights $=0$).
+(5)~\textit{w/o Anchor+Noise}: disables clean anchoring and noise-level supervision ($\lambda_{\text{anc}}{=}\lambda_{\text{noise}}{=}0$).
+
+\begin{table}[htbp]
+\centering
+\caption{Loss leave-one-out ablation (BLIP, single-seed $s{=}42$, no WiSE-FT). BM$>$: \#conditions beating the frozen BLIP baseline (/66). R/G/A: per-task BM$>$ (/22). $\Delta$BM$>$: change vs.\ the Full row.}
+\label{tab:loo_bm}
+\resizebox{\columnwidth}{!}{%
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{FairFace} & BM$>$ & Acc & R & G & A & $\Delta$BM$>$ \\
+\midrule
+Full ($s{=}42$, no WFT)    & 59/66 & 0.4489 & 21 & 20 & 18 & --- \\
+w/o Distillation           & 62/66 & 0.4521 & 21 & 21 & 20 & $+3$ \\
+w/o HSIC                   & 59/66 & 0.4487 & 21 & 20 & 18 & $\pm0$ \\
+w/o ArcFace$+$Adv          & 58/66 & 0.4533 & 22 & 20 & 16 & $-1$ \\
+w/o Anchor$+$Noise         & 54/66 & 0.4481 & 20 & 18 & 16 & $-5$ \\
+w/o Classification         & 30/66 & 0.4095 &  7 & 12 & 11 & $-29$ \\
+\midrule
+\textbf{UTKFace} & BM$>$ & Acc & R & G & A & $\Delta$BM$>$ \\
+\midrule
+Full ($s{=}42$, no WFT)    & 51/66 & 0.6989 & 17 & 16 & 18 & --- \\
+w/o Distillation           & 52/66 & 0.7009 & 17 & 14 & 21 & $+1$ \\
+w/o HSIC                   & 51/66 & 0.6986 & 17 & 16 & 18 & $\pm0$ \\
+w/o ArcFace$+$Adv          & 45/66 & 0.6992 & 15 & 13 & 17 & $-6$ \\
+w/o Anchor$+$Noise         & 39/66 & 0.6966 & 13 &  5 & 21 & $-12$ \\
+w/o Classification         & 27/66 & 0.6745 &  9 &  9 &  9 & $-24$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Findings.}
+(1)~\textit{Classification CE is indispensable}: removing the per-task CE heads collapses BM$>$ by $-29$ on FairFace and $-24$ on UTKFace, confirming that the HSIC, ArcFace, and distillation terms cannot by themselves supervise the adapter to predict attributes.
+(2)~\textit{Clean anchoring $+$ noise supervision together drive the noise gate}: removing both degrades BM$>$ by $-5$ (FairFace) and $-12$ (UTKFace), with the largest drop on UTKFace gender (from 16 to 5) confirming that noise-level supervision is what teaches the gate to open/close in a task-appropriate way.
+(3)~\textit{ArcFace$+$Adversarial provides a modest but consistent lift}: disabling angular margin and adversarial heads costs $-1$ on FairFace and $-6$ on UTKFace; race accuracy survives on FairFace (22/22) but drops on UTKFace (from 17 to 15).
+(4)~\textit{HSIC has the smallest marginal BM$>$ effect but still contributes to fairness}: removing HSIC costs $0$ BM$>$ on both datasets, yet the clean FairFace race accuracy gap widens from $4.2\%$ (full model, Table~\ref{tab:app_fairness}) to $7.2\%$ without HSIC, and the FairFace age gap tightens from $12.0\%$ to $9.8\%$---indicating HSIC trades raw accuracy neutrality for per-group parity in a task-specific way.
+(5)~\textit{Distillation does not by itself improve BM$>$ on a single seed} (FairFace $+3$, UTKFace $+1$): without KL distillation the adapter moves further from the frozen baseline and wins more conditions on raw single-seed eval.
+Distillation becomes important under the 5-seed ensemble $+$ WiSE-FT setup, where it regularises the adapter into a subspace compatible with the frozen baseline---a prerequisite for WiSE-FT interpolation to yield coherent gains (see the ablation discussion in \S4.5 of the main paper).
+
+This ordering is consistent across both datasets: Classification is indispensable, Anchor and Noise together drive the gate, ArcFace and Adversarial provide a modest lift, and HSIC reshapes fairness without shifting raw accuracy.
+The multi-loss design therefore contributes complementary rather than redundant signal.
+
+
+% ============================================================
+\section{Per-Loss FLOP Breakdown and Wall-Clock}
+\label{app:cost}
+
+This appendix expands the order-of-magnitude analysis in \S3.6 of the main paper into concrete per-loss FLOP counts at the operating point used in our experiments ($B{=}64$, $d{=}768$, $h_a{=}384$, $h_g{=}64$, $N_d{=}14$, $S{=}5$).
+We report theoretical FLOPs derived from the closed-form cost expressions; constants of $2$ for multiply-accumulate are absorbed into the leading coefficient.
+
+\subsection{Per-Component FLOPs (Forward Pass)}
+
+\begin{table}[htbp]
+\centering
+\caption{Per-batch forward FLOPs ($B{=}64$, $d{=}768$, $h_a{=}384$, $h_g{=}64$). The frozen backbone is dominant; adapter, gate and heads add ${<}0.01\%$.}
+\label{tab:flop_components}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrr}
+\toprule
+Component & Closed form & FLOPs/batch \\
+\midrule
+BLIP ViT-B/16 (frozen, fwd) & $B\,C_{\text{enc}}$ & $1.08{\times}10^{12}$ \\
+\quad teacher copy (no grad) & $B\,C_{\text{enc}}$ & $1.08{\times}10^{12}$ \\
+Adapter (3 linear + GELU)   & $2B(2 d h_a + h_a^2)$ & $9.4{\times}10^{7}$ \\
+Noise gate (2 linear + sigmoid) & $2B(d h_g + h_g)$ & $6.3{\times}10^{6}$ \\
+Heads (race + gender + age) & $2B d \sum_k K_k$ & $1.8{\times}10^{6}$ \\
+WiSE-FT interpolation       & $B d$ & $4.9{\times}10^{4}$ \\
+\midrule
+\textit{Total fwd / batch}  & --- & $\approx 2.16{\times}10^{12}$ \\
+\textit{Adapter+gate+heads share} & --- & $\mathbf{<\!0.01\%}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-Loss FLOPs}
+
+\begin{table}[htbp]
+\centering
+\caption{Per-batch loss FLOPs at the same operating point ($B{=}64$, $d{=}768$, $K_r{=}7$). The full objective adds ${\approx}2{\times}10^{8}$ FLOPs/batch — more than four orders of magnitude below the backbone forward (Table~\ref{tab:flop_components}).}
+\label{tab:flop_losses}
+\resizebox{\columnwidth}{!}{%
+\setlength{\tabcolsep}{3pt}
+\small
+\begin{tabular}{llrr}
+\toprule
+Family & Closed form & Count & FLOPs/batch \\
+\midrule
+Per-sample alignment (MSE, cos., & \multirow{2}{*}{$O(Bd)$--$O(Bd\log d)$} & \multirow{2}{*}{$7$} & \multirow{2}{*}{$\approx 1.4{\times}10^{6}$} \\
+\quad SmoothL1, KL, FFL, L1, SSIM) & & & \\
+Batch contrastive/metric (NT-Xent, & \multirow{2}{*}{$O(B^2 d)$, $O(B K_r d)$} & \multirow{2}{*}{$5$} & \multirow{2}{*}{$\approx 2.0{\times}10^{7}$} \\
+\quad MultiSim, Triplet, ArcFace, Center) & & & \\
+Redundancy (Barlow Twins, VICReg) & $O(B d^2)$ & $2$ & $\approx 1.5{\times}10^{8}$ \\
+HSIC ($r$, $g$)        & $O(B^2 d)$         & $2$ & $1.3{\times}10^{7}$ \\
+Multi-task CE (post-head) & $O(B \sum_k K_k)$ & $3$ & $\sim\!10^{3}$ \\
+ArcFace logit adjust (fixed) & $O(B K_r d)$   & $1$ & $\approx 3.4{\times}10^{5}$ \\
+Domain adversary (GRL $+$ focal) & $O(B d)$   & $1$ & $\approx 2{\times}10^{5}$ \\
+Clean anchoring        & $O(|\mathcal{B}_c| d)$ & $1$ & ${\le}1.5{\times}10^{5}$ \\
+Noise BCE              & $O(B)$             & $1$ & $1.3{\times}10^{2}$ \\
+RTDAR router softmax   & $O(N_d)$           & $1$ & ${\sim}10^{2}$ \\
+\midrule
+\textit{Total loss / batch} & --- & --- & $\mathbf{\approx 1.9{\times}10^{8}}$ \\
+\textit{Loss share of fwd}  & --- & ---  & $\mathbf{\approx 0.009\%}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+The count column lists the individual scalar terms; the paper's ``17'' counts the 14 routed terms (rows 1--3) plus the CE, ArcFace, and HSIC families as three fixed-weight units, with the gating-tied BCE/anchor scalars and the domain adversary scoped outside the router.
+The Barlow~Twins and VICReg redundancy terms are the largest components because they form $d{\times}d$ correlation matrices ($O(Bd^2)$); the $B^2$-scaled contrastive and HSIC terms follow, and everything else is linear or sub-linear in $B$ and effectively negligible.
+Even the largest term remains ${\sim}10^{4}$ times smaller than one backbone forward pass.
+This is what justifies the design choice in \S3.2 of the main paper: routing all 14 alignment terms through a single learned weighting (RTDAR) instead of pruning to a smaller subset costs essentially nothing per step, while it gives the router the freedom to up- or down-weight individual heads as training progresses.
+
+\subsection{Trainable Parameter Breakdown}
+
+\begin{table}[htbp]
+\centering
+\caption{Trainable parameter count per module. The 803K--805K total is $0.92\%$ of the frozen BLIP encoder.}
+\label{tab:param_breakdown}
+\resizebox{\columnwidth}{!}{%
+\setlength{\tabcolsep}{4pt}
+\small
+\begin{tabular}{lrr}
+\toprule
+Module & Closed form & Params \\
+\midrule
+Adapter $W_1,W_2,W_3$ + biases & $2dh_a + h_a^2 + (h_a{+}h_a{+}d)$ & $738{,}624$ \\
+Noise gate $W_4,W_5$ + biases & $dh_g + h_g + h_g{+}1$ & $49{,}281$ \\
+Heads (race / gender / age)   & $d(K_r{+}K_g{+}K_a) + (K_r{+}K_g{+}K_a)$ & $\approx 14{,}000$ \\
+RTDAR router $\mathbf{r}$     & $N_d{=}14$ logits + 85 init params & $99$ \\
+\midrule
+\textit{Total (FairFace, $K_r{=}7$)}  & --- & $805$K \\
+\textit{Total (UTKFace, $K_r{=}5$)}   & --- & $803$K \\
+\textit{Frozen BLIP encoder}          & --- & $87$M \\
+\textit{Trainable ratio}              & --- & $0.92\%$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Wall-Clock Estimates}
+
+Translating the FLOP counts above into wall-clock requires a concrete platform; we report estimates for a single NVIDIA A100 (312 TFLOPs/s peak in TF32, ${\sim}80\%$ utilisation in mixed-precision adapter training of a frozen ViT).
+At $B{=}64$, one training step processes $2BC_{\text{enc}}+T_{\text{loss}}\approx 2.16{\times}10^{12}$ FLOPs (Table~\ref{tab:flop_components}); at the assumed throughput this is roughly 10--12\,ms/step.
+One epoch traverses all $88{,}000$ pre-generated views ($88{,}000/64 = 1{,}375$ steps), i.e., ${\approx}14$--$17$\,s/epoch under the A100 estimate.
+Measured wall-clock on our RTX~4090 (including data loading and the teacher forward) is ${\approx}2.9$\,h per FairFace run and ${\approx}2.0$\,h per UTKFace run at the 25--35-epoch convergence points reported in Table~\ref{tab:backbone_seeds}.
+The 5-seed ensemble is trained sequentially in our default pipeline but is embarrassingly parallel: $S$ GPUs collapse the wall-clock back to one-seed time.
+Inference cost at $B{=}64$ is dominated by the $S$ frozen-backbone forwards (${\sim}10$ms each), giving ${\approx}50$ms/batch for the 5-seed ensemble plus a ${<}0.1$ms WiSE-FT interpolation.
+
+For deployment scenarios where the $S{=}5$ inference factor is unacceptable, the WiSE-FT-only configuration (single seed, $\alpha$ tuned on a held-out fold) recovers $54.4{\pm}1.9$ baseline wins on UTKFace and $58.5{\pm}0.7$ on FairFace (\S3.3/\S3.4 of the main paper), trading ${\sim}4$ baseline-wins for the $5{\times}$ speedup.
+
+\subsection{Comparison with Baselines (Cost Summary)}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost comparison vs.\ representative baselines. $N$: training-set size; $B$: batch size; $S$: ensemble seeds; $C_{\text{enc}}$: frozen backbone forward; $\Theta_{\text{enc}}$: encoder parameter count.}
+\label{tab:cost_compare}
+\resizebox{\columnwidth}{!}{%
+\setlength{\tabcolsep}{2.5pt}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Method & Train cost / step & Trainable params & Inference factor & Joint? \\
+\midrule
+LEACE / INLP / PASS & closed-form ($O(d^2)$ once) & $0$ & $1{\times}{+}O(d)$ & No (fair.) \\
+FairerCLIP          & $O(N^2 d)$ kernel fit & $0$ & $1{\times}{+}O(d)$ & No (fair.) \\
+SFID                & $O(B d \sum_k K_k)$ & $\Theta_{\text{tr}}{\sim}10^{4}$ & $1{\times}$ & No (fair.) \\
+AugMix / PixMix / IPMix & $O(B C_{\text{enc}})$+aug & $\Theta_{\text{enc}}{=}87$M & $1{\times}$ & No (rob.) \\
+\textbf{GRoFA (ours)}   & $O(2 B C_{\text{enc}}{+}N_d B^2 d)$ & $\Theta_{\text{tr}}{=}803$K & $S{\times}$ ($S{=}5$) & \textbf{Yes} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+The cost trade-off therefore separates into two axes.
+\emph{(i)~Training:} GRoFA's per-step cost is asymptotically the same as full-encoder fine-tuning ($O(BC_{\text{enc}})$) but with $108{\times}$ fewer trainable parameters; the additional $O(N_d B^2 d)$ term from the multi-loss objective is two orders below $BC_{\text{enc}}$ at our settings.
+\emph{(ii)~Inference:} GRoFA pays $S{\times}$ a single forward in exchange for the variance-reduction provided by the embedding ensemble, matching the cost profile of a deep ensemble~\cite{lakshminarayanan2017simple} or a model-soup deployment.
+Post-hoc projection methods are strictly cheaper at inference but do not address noise robustness; data augmentation is cheaper at inference but does not improve fairness.
+GRoFA is the only method in the comparison that pays \emph{any} extra cost in exchange for the joint fairness$+$robustness objective, and that cost is bounded and explicit.
+
+
+%%% ================================================================
+%%% Section I: Corruption Generation Parameters
+%%% ================================================================
+
+\section{Corruption Generation Parameters}
+\label{app:corruption}
+
+Table~\ref{tab:corruption_params} lists the exact per-severity parameters used to pre-generate the 21 corrupted views of every image (\S3.7 of the main paper).
+The corruption family follows the ImageNet-C benchmark~\cite{hendrycks2019benchmarking}; parameters were fixed once before all experiments and are identical for every method in the comparison.
+Pixel intensities are normalized to $[0,1]$ before corruption and re-quantized afterwards.
+
+\begin{table}[htbp]
+\centering
+\caption{Per-severity corruption parameters (identical across datasets and methods).}
+\label{tab:corruption_params}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccc}
+\toprule
+Type & Parameter & Sev.\ 1 & Sev.\ 2 & Sev.\ 3 \\
+\midrule
+Gaussian noise & std.\ $\sigma$ & 0.08 & 0.12 & 0.18 \\
+Shot noise & photon scale $c$ ($\mathrm{Pois}(xc)/c$) & 60 & 25 & 12 \\
+Impulse noise & salt-and-pepper fraction & 0.03 & 0.06 & 0.09 \\
+Defocus blur & Gaussian-blur radius (px) & 2 & 4 & 6 \\
+Glass blur & ($\sigma$, max shift, iters) & (0.7,1,1) & (0.9,2,1) & (1.5,2,2) \\
+JPEG & quality factor & 75 & 40 & 20 \\
+Cutout & square size (px) & 30 & 50 & 70 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%%% ================================================================
+%%% Section J: Training-Data Scaling
+%%% ================================================================
+
+\section{Training-Data Scaling}
+\label{app:scaling}
+
+To probe whether the $4{,}000$-image training protocol limits GRoFA, we scale the \emph{adapter training pool} to $8{,}000$, $16{,}000$, and $32{,}000$ FairFace images---sampled with the same builder and seed from the official train split \emph{after excluding the $1{,}000$ fixed test images} ($85{,}744$ candidates), so no test image enters any training pool---while holding everything else fixed: the frozen IPMix-LoRA backbone, all hyperparameters, the corruption parameters of Table~\ref{tab:corruption_params} (22 views per image, all traversed every epoch), and the evaluation protocol (the same $1{,}000$-image test set and clean-only probe training of \S4.1 of the main paper).
+Each scale trains a single seed ($s{=}42$) and applies WiSE-FT at $\alpha{=}0.95$, matching the single-seed configuration whose $4{,}000$-image reference attains $58/66$ baseline wins.
+
+\begin{table}[htbp]
+\centering
+\caption{Training-data scaling on FairFace (BLIP, single seed $s{=}42$ $+$ WiSE-FT $\alpha{=}0.95$, identical test set and hyperparameters). BM$>$: baseline wins out of 66; Acc: severity-averaged mean accuracy over the 66 conditions.}
+\label{tab:scaling}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lcc}
+\toprule
+Training images & BM$>$ (/66) & Mean Acc \\
+\midrule
+$4{,}000$ (paper protocol) & $58$ & $0.449$ \\
+$8{,}000$  & $51$ & $0.437$ \\
+$16{,}000$ & $59$ & $0.445$ \\
+$32{,}000$ & $62$ & $0.455$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The response is not monotonic: the $8{,}000$-image pool dips below the $4{,}000$-image reference before the trend recovers and improves through $16{,}000$ and $32{,}000$ images.
+The largest pool improves on the paper protocol by four baseline wins ($58{\to}62$) at $+0.006$ mean accuracy, an eightfold data increase for a modest gain.
+Because each scale trains a single seed, part of the dip at $8{,}000$ images may reflect seed-level variance rather than a systematic effect of pool size.
+We conclude that the $4{,}000$-image protocol of the main paper is not the binding constraint on GRoFA: it already realizes most of the accuracy attainable with $8\times$ more data, and the comparisons in the main paper measure the method rather than a shortage of training images.

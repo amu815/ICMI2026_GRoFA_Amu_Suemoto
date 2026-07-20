@@ -18,6 +18,7 @@ src/        Training, models, losses, embedding generation, evaluation
 scripts/    End-to-end pipelines (5-seed evaluation, LoRA backbones, baseline eval)
 analysis/   Gate-response analysis and statistical tests
 logs/       Per-seed evaluation logs of the final models (CSV)
+paper/      Supplementary appendix (compiled PDF + LaTeX source)
 ```
 
 ## Setup
@@ -83,6 +84,16 @@ python3 src/build_dataset_utkface.py            # UTKFace
 `logs/fairface_5seed_wiseft095/` and `logs/utkface_5seed_wiseft060/` contain the
 raw per-seed accuracies (`raw_per_seed.csv`), per-condition summaries, and
 fairness metrics of the final 5-seed + WiSE-FT models reported in the paper.
+
+## Supplementary appendix
+
+The paper's appendix is distributed as supplementary material and is not part of
+the proceedings PDF. [`paper/GRoFA_appendix.pdf`](paper/GRoFA_appendix.pdf) is the
+compiled appendix (full statistical tables, per-condition results, hyperparameter
+sensitivity, per-backbone training details, corruption generation parameters, and
+the training-data scaling study); its LaTeX source (`appendix_cr.tex`,
+`Appendix_body_cr.tex`, `refs.bib`) is in the same folder and compiles with the
+standard `acmart` class.
 
 ## Checkpoints
 

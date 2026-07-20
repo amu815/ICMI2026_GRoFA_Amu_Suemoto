@@ -1,0 +1,70 @@
+% ICMI 2026 — GRoFA Appendix (standalone compile target)
+% This file is the standalone counterpart of main.tex. It reuses the same
+% acmart sigconf preamble and pulls the full appendix body from
+% Appendix_body.tex via \input, so the body never has to be duplicated.
+\documentclass[sigconf]{acmart}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+% acmart loads newtxmath, which already defines \Bbbk; guard amssymb so it
+% does not redefine the symbol and abort the build.
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{graphicx}
+
+% Helper macros reused by per-condition delta columns in the appendix tables.
+\newcommand{\pmark}{$+$}
+\newcommand{\mmark}{$-$}
+
+% Supplementary material: no ACM rights block (not part of the published record).
+\setcopyright{none}
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+\acmConference[ICMI '26]{28th ACM International Conference on Multimodal Interaction}{October 6--8, 2026}{Naples, Italy}
+\acmYear{2026}
+
+\begin{document}
+
+\title{Appendix: GRoFA --- Noise-Gated Adapters for Jointly \\ Fair and Robust Face Embeddings}
+
+\author{Amu Suemoto}
+\email{suemoto.amu.815@s.kyushu-u.ac.jp}
+\affiliation{%
+  \department{Graduate School of Information Science and Electrical Engineering}
+  \institution{Kyushu University}
+  \city{Fukuoka}
+  \country{Japan}}
+
+\author{Yutaka Arakawa}
+\email{arakawa@ait.kyushu-u.ac.jp}
+\affiliation{%
+  \department{Faculty of Information Science and Electrical Engineering}
+  \institution{Kyushu University}
+  \city{Fukuoka}
+  \country{Japan}}
+
+\author{Tsunenori Mine}
+\email{mine@ait.kyushu-u.ac.jp}
+\affiliation{%
+  \department{Faculty of Information Science and Electrical Engineering}
+  \institution{Kyushu University}
+  \city{Fukuoka}
+  \country{Japan}}
+
+\renewcommand{\shortauthors}{Suemoto et al.}
+
+\maketitle
+
+% All \section starting from here are renumbered A, B, C, ... thanks to \appendix.
+\appendix
+
+\input{Appendix_body_cr}
+
+% ============================================================
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\end{document}
